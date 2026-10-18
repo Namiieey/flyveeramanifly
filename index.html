@@ -37,6 +37,8 @@
     html, body {
       width: 100%;
       height: 100%;
+      height: 100dvh;
+      min-height: -webkit-fill-available;
       overflow: hidden;
       background-color: var(--bg-dark);
       font-family: var(--font-family);
@@ -49,7 +51,9 @@
     #app-container {
       position: relative;
       width: 100vw;
-      height: 100vh;
+      height: 100%;
+      height: 100dvh;
+      min-height: -webkit-fill-available;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -78,6 +82,12 @@
         aspect-ratio: unset;
         border-radius: 0;
         box-shadow: none;
+      }
+
+      /* Disable GPU-heavy backdrop-filters on mobile to eliminate compositor lag */
+      .screen-overlay, .gate-card, .gameover-card, .instructions-card, .header-badge, .icon-btn, .hud-pill, .btn-secondary {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
       }
     }
 
@@ -680,6 +690,165 @@
       30%, 50%, 70% { transform: translate3d(-7px, 6px, 0); }
       40%, 60% { transform: translate3d(7px, -6px, 0); }
     }
+
+    /* Mobile UI Scale & Fit Optimizations */
+    @media (max-width: 600px), (max-height: 750px) {
+      .screen-overlay {
+        padding: max(8px, env(safe-area-inset-top)) 12px max(8px, env(safe-area-inset-bottom)) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
+      .home-header {
+        padding-top: 2px !important;
+        gap: 4px !important;
+        width: 100% !important;
+      }
+      .header-badge {
+        font-size: 0.7rem !important;
+        padding: 4px 8px !important;
+        gap: 3px !important;
+      }
+      .header-badge span.val {
+        font-size: 0.85rem !important;
+      }
+      .icon-btn {
+        min-width: 34px !important;
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 0.92rem !important;
+      }
+      .home-center {
+        margin: auto 0 !important;
+        gap: 2px !important;
+      }
+      .game-logo-text {
+        font-size: clamp(1.65rem, 6.5vw, 2.1rem) !important;
+        margin-bottom: 2px !important;
+        line-height: 1.1 !important;
+      }
+      .brand-tag {
+        font-size: 0.68rem !important;
+        margin-bottom: 2px !important;
+      }
+      .tagline {
+        font-size: 0.8rem !important;
+        margin-bottom: 8px !important;
+      }
+      .character-preview-box {
+        width: 96px !important;
+        height: 96px !important;
+        margin: 2px auto !important;
+      }
+      .hero-pedestal {
+        width: 66px !important;
+        height: 14px !important;
+        bottom: 5px !important;
+      }
+      .instructions-card {
+        padding: 6px 12px !important;
+        font-size: 0.75rem !important;
+        margin: 4px 0 8px !important;
+        line-height: 1.32 !important;
+        max-width: 300px !important;
+      }
+      .btn-epic {
+        font-size: 1.08rem !important;
+        padding: 10px 26px !important;
+      }
+      .btn-secondary {
+        font-size: 0.78rem !important;
+        padding: 6px 15px !important;
+      }
+      #hud-layer {
+        padding: max(10px, env(safe-area-inset-top)) 12px 10px !important;
+      }
+      .score-badge {
+        font-size: 2.2rem !important;
+      }
+      #hud-rank-pill {
+        font-size: 0.68rem !important;
+        padding: 2px 8px !important;
+      }
+      #hud-best-pill {
+        font-size: 0.72rem !important;
+        padding: 3px 8px !important;
+      }
+      #btn-sound-toggle-hud {
+        height: 32px !important;
+        padding: 0 10px !important;
+        font-size: 0.85rem !important;
+      }
+      #event-banner {
+        font-size: 0.95rem !important;
+        padding: 8px 18px !important;
+        top: 22% !important;
+      }
+      .gameover-card {
+        padding: 14px 14px !important;
+        max-height: 94dvh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
+      .troll-loss-title {
+        font-size: 1.35rem !important;
+        margin-bottom: 2px !important;
+      }
+      .troll-punchline {
+        font-size: 0.8rem !important;
+        min-height: 26px !important;
+        margin-bottom: 6px !important;
+        line-height: 1.25 !important;
+      }
+      .medal-badge-box {
+        padding: 5px 10px !important;
+        margin-bottom: 8px !important;
+        gap: 8px !important;
+      }
+      .medal-icon {
+        font-size: 1.5rem !important;
+      }
+      .medal-title {
+        font-size: 0.88rem !important;
+      }
+      .medal-tier {
+        font-size: 0.65rem !important;
+      }
+      .score-summary-grid {
+        margin-bottom: 10px !important;
+        gap: 6px !important;
+      }
+      .score-box {
+        padding: 6px 4px !important;
+      }
+      .score-box .label {
+        font-size: 0.68rem !important;
+      }
+      .score-box .number {
+        font-size: 1.65rem !important;
+      }
+      .gameover-actions {
+        gap: 8px !important;
+      }
+      .gate-card {
+        padding: 20px 16px !important;
+        max-height: 92dvh !important;
+        overflow-y: auto !important;
+      }
+      .cinematic-text {
+        font-size: clamp(1.6rem, 7vw, 2.1rem) !important;
+        width: 94% !important;
+      }
+      #scene3-text div:nth-child(2) {
+        font-size: clamp(2rem, 8.5vw, 2.6rem) !important;
+        line-height: 1.15 !important;
+      }
+      #scene2-text div:nth-child(3) {
+        font-size: clamp(2.2rem, 8vw, 2.7rem) !important;
+      }
+      #btn-skip-intro {
+        bottom: max(16px, env(safe-area-inset-bottom)) !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -772,16 +941,16 @@
       <!-- 3. HOME SCREEN -->
       <div id="home-screen" class="screen-overlay hidden">
         <div class="home-header">
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
             <span class="header-badge" style="color: #ff9d00; border-color: rgba(255,157,0,0.3);">⚡ Namith.dev</span>
             <span class="header-badge" style="color: #ffffff; border-color: rgba(255,255,255,0.25);">▲ Vercel</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
             <div class="header-badge">
               <span>👑 ഹൈസ്‌കോർ:</span>
               <span class="val" id="home-best-score">0</span>
             </div>
-            <button id="btn-sound-toggle-home" class="icon-btn" title="സൗണ്ട്">🔊</button>
+            <button id="btn-sound-toggle-home" class="icon-btn" style="min-width: 38px; width: 38px; height: 38px; font-size: 1rem;" title="സൗണ്ട്">🔊</button>
           </div>
         </div>
 
@@ -1102,6 +1271,10 @@
         this.sound = new SoundController();
         this.state = STATES.GATE;
 
+        // Pre-rendered offscreen background canvas for blazing-fast 60fps on mobile
+        this.bgCanvas = document.createElement('canvas');
+        this.bgCtx = this.bgCanvas.getContext('2d');
+
         // Coordinates & Virtual Canvas Size (Base: 480x800)
         this.V_WIDTH = 480;
         this.V_HEIGHT = 800;
@@ -1271,10 +1444,19 @@
           }
         };
 
-        // Canvas Click & Touch
-        this.canvas.addEventListener('pointerdown', (e) => {
+        // Canvas Touch & Pointer Input with zero mobile latency
+        this.canvas.addEventListener('touchstart', (e) => {
+          if (e.cancelable) e.preventDefault();
           if (this.state === STATES.PLAYING) {
-            triggerJump(e);
+            this.handlePlayerJump();
+          }
+        }, { passive: false });
+
+        this.canvas.addEventListener('pointerdown', (e) => {
+          if (e.pointerType !== 'touch') { // prevent duplicate jump
+            if (this.state === STATES.PLAYING) {
+              triggerJump(e);
+            }
           }
         });
 
@@ -1300,14 +1482,23 @@
       resize() {
         const wrapper = this.ui.wrapper;
         const rect = wrapper.getBoundingClientRect();
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        // Capped DPR on mobile devices to eliminate GPU shader lag
+        const isMobile = window.innerWidth <= 600 || window.innerHeight <= 600;
+        const dpr = isMobile ? Math.min(window.devicePixelRatio || 1, 1.25) : Math.min(window.devicePixelRatio || 1, 1.8);
 
-        this.canvas.width = rect.width * dpr;
-        this.canvas.height = rect.height * dpr;
+        this.canvas.width = Math.floor(rect.width * dpr);
+        this.canvas.height = Math.floor(rect.height * dpr);
         this.scale = this.canvas.width / this.V_WIDTH;
         this.V_HEIGHT = this.canvas.height / this.scale;
 
         this.ctx.setTransform(this.scale, 0, 0, this.scale, 0, 0);
+
+        if (!this.cityHills || this.cityHills.length === 0) {
+          this.initWorldScenery();
+        }
+
+        // Cache static background to offscreen canvas
+        this.cacheStaticBackground();
       }
 
       initWorldScenery() {
@@ -1336,6 +1527,128 @@
           });
           curX += width;
         }
+      }
+
+      cacheStaticBackground() {
+        if (!this.bgCanvas || !this.bgCtx) return;
+        this.bgCanvas.width = this.V_WIDTH;
+        this.bgCanvas.height = this.V_HEIGHT;
+        const ctx = this.bgCtx;
+
+        // 1. Tropical Morning / Daylight Sky Gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, this.V_HEIGHT);
+        skyGrad.addColorStop(0, '#101a2f');    // Deep tropical azure
+        skyGrad.addColorStop(0.35, '#20395e'); // Brilliant morning sky
+        skyGrad.addColorStop(0.65, '#b85422'); // Warm amber daylight
+        skyGrad.addColorStop(0.85, '#ff9633'); // Golden sunburst horizon
+        skyGrad.addColorStop(1, '#33170c');    // Ground horizon haze
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, this.V_WIDTH, this.V_HEIGHT);
+
+        // 2. THE DAYLIGHT CIRCLE (RADIANT SUN & GOD RAYS)
+        const sunX = this.V_WIDTH * 0.74;
+        const sunY = 135;
+        const sunRadius = 34;
+
+        // A. Ambient Solar Corona (Outer Halo)
+        const coronaGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 240);
+        coronaGrad.addColorStop(0, 'rgba(255, 230, 140, 0.45)');
+        coronaGrad.addColorStop(0.3, 'rgba(255, 160, 40, 0.22)');
+        coronaGrad.addColorStop(0.7, 'rgba(255, 100, 20, 0.08)');
+        coronaGrad.addColorStop(1, 'rgba(255, 60, 0, 0)');
+        ctx.fillStyle = coronaGrad;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, 240, 0, Math.PI * 2);
+        ctx.fill();
+
+        // B. God Rays / Sunbeams
+        ctx.save();
+        ctx.translate(sunX, sunY);
+        ctx.fillStyle = 'rgba(255, 230, 150, 0.06)';
+        for (let b = 0; b < 12; b++) {
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.arc(0, 0, this.V_HEIGHT * 0.95, -0.075, 0.075);
+          ctx.closePath();
+          ctx.fill();
+          ctx.rotate(Math.PI / 6);
+        }
+        ctx.restore();
+
+        // C. Core Daylight Sun Disk
+        const coreSunGrad = ctx.createRadialGradient(sunX - 6, sunY - 6, 2, sunX, sunY, sunRadius);
+        coreSunGrad.addColorStop(0, '#ffffff');       // Pure solar white core
+        coreSunGrad.addColorStop(0.45, '#fff1a8');    // Brilliant sunlight gold
+        coreSunGrad.addColorStop(0.85, '#ffaa00');    // Radiant amber rim
+        coreSunGrad.addColorStop(1, 'rgba(255, 120, 0, 0.85)');
+        ctx.fillStyle = coreSunGrad;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // D. Luminous Sun Ring
+        ctx.strokeStyle = 'rgba(255, 245, 190, 0.7)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, sunRadius + 4, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // E. Cinematic Lens Flare Orbs (Aligned diagonally towards bottom-left)
+        const flareDist = 90;
+        const flareAngle = Math.PI * 0.75;
+        // Flare 1: Soft Golden Bokeh Orb
+        const f1X = sunX + Math.cos(flareAngle) * flareDist * 1.5;
+        const f1Y = sunY + Math.sin(flareAngle) * flareDist * 1.5;
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.12)';
+        ctx.beginPath();
+        ctx.arc(f1X, f1Y, 18, 0, Math.PI * 2);
+        ctx.fill();
+        // Flare 2: Amber Ring
+        const f2X = sunX + Math.cos(flareAngle) * flareDist * 2.8;
+        const f2Y = sunY + Math.sin(flareAngle) * flareDist * 2.8;
+        ctx.strokeStyle = 'rgba(255, 140, 0, 0.15)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(f2X, f2Y, 28, 0, Math.PI * 2);
+        ctx.stroke();
+        // Flare 3: Soft Daylight Streak
+        const f3X = sunX + Math.cos(flareAngle) * flareDist * 4.0;
+        const f3Y = sunY + Math.sin(flareAngle) * flareDist * 4.0;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.10)';
+        ctx.beginPath();
+        ctx.arc(f3X, f3Y, 12, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3. Distant Kerala Hills Silhouette with Coconut Palms
+        if (this.cityHills && this.cityHills.length > 0) {
+          ctx.fillStyle = '#111722';
+          ctx.beginPath();
+          ctx.moveTo(0, this.V_HEIGHT - 120);
+          for (let hill of this.cityHills) {
+            ctx.lineTo(hill.x, this.V_HEIGHT - hill.height);
+            ctx.lineTo(hill.x + hill.width, this.V_HEIGHT - 120);
+          }
+          ctx.lineTo(this.V_WIDTH, this.V_HEIGHT);
+          ctx.lineTo(0, this.V_HEIGHT);
+          ctx.fill();
+
+          // Palms on hill peaks
+          ctx.save();
+          ctx.fillStyle = '#0c111a';
+          ctx.strokeStyle = '#0c111a';
+          for (let hill of this.cityHills) {
+            if (hill.trees) {
+              const px = hill.x + hill.width * 0.5;
+              const py = this.V_HEIGHT - hill.height;
+              this.drawCoconutPalm(ctx, px, py, 26);
+            }
+          }
+          ctx.restore();
+        }
+
+        // 4. Base Road Ground
+        ctx.fillStyle = '#181b24';
+        ctx.fillRect(0, this.V_HEIGHT - 70, this.V_WIDTH, 70);
       }
 
       resetGameVariables() {
@@ -1905,6 +2218,9 @@
       // PARTICLE ENGINE
       // =========================================================
       updateParticles() {
+        if (this.particles.length > 80) {
+          this.particles.splice(0, this.particles.length - 80);
+        }
         for (let i = this.particles.length - 1; i >= 0; i--) {
           const p = this.particles[i];
           p.x += p.vx;
@@ -1919,8 +2235,9 @@
 
       drawParticles() {
         const ctx = this.ctx;
+        if (this.particles.length === 0) return;
+        ctx.save();
         for (let p of this.particles) {
-          ctx.save();
           ctx.globalAlpha = Math.max(0, p.alpha);
 
           if (p.text) {
@@ -1933,8 +2250,8 @@
             ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             ctx.fill();
           }
-          ctx.restore();
         }
+        ctx.restore();
       }
 
       spawnComicExplosion(x, y) {
@@ -2276,118 +2593,15 @@
       drawBackground() {
         const ctx = this.ctx;
 
-        // 1. Tropical Morning / Daylight Sky Gradient
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, this.V_HEIGHT);
-        skyGrad.addColorStop(0, '#101a2f');    // Deep tropical azure
-        skyGrad.addColorStop(0.35, '#20395e'); // Brilliant morning sky
-        skyGrad.addColorStop(0.65, '#b85422'); // Warm amber daylight
-        skyGrad.addColorStop(0.85, '#ff9633'); // Golden sunburst horizon
-        skyGrad.addColorStop(1, '#33170c');    // Ground horizon haze
-        ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, this.V_WIDTH, this.V_HEIGHT);
-
-        // 2. THE DAYLIGHT CIRCLE (RADIANT SUN & GOD RAYS)
-        const sunX = this.V_WIDTH * 0.74;
-        const sunY = 135;
-        const sunRadius = 34;
-
-        // A. Ambient Solar Corona (Outer Halo)
-        const coronaGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 240);
-        coronaGrad.addColorStop(0, 'rgba(255, 230, 140, 0.45)');
-        coronaGrad.addColorStop(0.3, 'rgba(255, 160, 40, 0.22)');
-        coronaGrad.addColorStop(0.7, 'rgba(255, 100, 20, 0.08)');
-        coronaGrad.addColorStop(1, 'rgba(255, 60, 0, 0)');
-        ctx.fillStyle = coronaGrad;
-        ctx.beginPath();
-        ctx.arc(sunX, sunY, 240, 0, Math.PI * 2);
-        ctx.fill();
-
-        // B. Rotating Sunbeams (God Rays)
-        ctx.save();
-        ctx.translate(sunX, sunY);
-        const beamRot = (Date.now() * 0.00015) % (Math.PI * 2);
-        ctx.rotate(beamRot);
-        ctx.fillStyle = 'rgba(255, 230, 150, 0.05)';
-        for (let b = 0; b < 12; b++) {
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.arc(0, 0, this.V_HEIGHT * 0.95, -0.075, 0.075);
-          ctx.closePath();
-          ctx.fill();
-          ctx.rotate(Math.PI / 6);
+        // 1. Blit pre-cached static daylight background & hills (Zero GPU gradient lag)
+        if (this.bgCanvas && this.bgCanvas.width > 0) {
+          ctx.drawImage(this.bgCanvas, 0, 0);
+        } else {
+          ctx.fillStyle = '#101a2f';
+          ctx.fillRect(0, 0, this.V_WIDTH, this.V_HEIGHT);
         }
-        ctx.restore();
 
-        // C. Core Daylight Sun Disk
-        const coreSunGrad = ctx.createRadialGradient(sunX - 6, sunY - 6, 2, sunX, sunY, sunRadius);
-        coreSunGrad.addColorStop(0, '#ffffff');       // Pure solar white core
-        coreSunGrad.addColorStop(0.45, '#fff1a8');    // Brilliant sunlight gold
-        coreSunGrad.addColorStop(0.85, '#ffaa00');    // Radiant amber rim
-        coreSunGrad.addColorStop(1, 'rgba(255, 120, 0, 0.85)');
-        ctx.fillStyle = coreSunGrad;
-        ctx.beginPath();
-        ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
-        ctx.fill();
-
-        // D. Luminous Sun Ring
-        ctx.strokeStyle = 'rgba(255, 245, 190, 0.7)';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(sunX, sunY, sunRadius + 4, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // E. Cinematic Lens Flare Orbs (Aligned diagonally towards bottom-left)
-        const flareDist = 90;
-        const flareAngle = Math.PI * 0.75;
-        // Flare 1: Soft Golden Bokeh Orb
-        const f1X = sunX + Math.cos(flareAngle) * flareDist * 1.5;
-        const f1Y = sunY + Math.sin(flareAngle) * flareDist * 1.5;
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.12)';
-        ctx.beginPath();
-        ctx.arc(f1X, f1Y, 18, 0, Math.PI * 2);
-        ctx.fill();
-        // Flare 2: Amber Ring
-        const f2X = sunX + Math.cos(flareAngle) * flareDist * 2.8;
-        const f2Y = sunY + Math.sin(flareAngle) * flareDist * 2.8;
-        ctx.strokeStyle = 'rgba(255, 140, 0, 0.15)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(f2X, f2Y, 28, 0, Math.PI * 2);
-        ctx.stroke();
-        // Flare 3: Soft Daylight Streak
-        const f3X = sunX + Math.cos(flareAngle) * flareDist * 4.0;
-        const f3Y = sunY + Math.sin(flareAngle) * flareDist * 4.0;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.10)';
-        ctx.beginPath();
-        ctx.arc(f3X, f3Y, 12, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 3. Distant Kerala Hills Silhouette with Coconut Palms
-        ctx.fillStyle = '#111722';
-        ctx.beginPath();
-        ctx.moveTo(0, this.V_HEIGHT - 120);
-        for (let hill of this.cityHills) {
-          ctx.lineTo(hill.x, this.V_HEIGHT - hill.height);
-          ctx.lineTo(hill.x + hill.width, this.V_HEIGHT - 120);
-        }
-        ctx.lineTo(this.V_WIDTH, this.V_HEIGHT);
-        ctx.lineTo(0, this.V_HEIGHT);
-        ctx.fill();
-
-        // Draw Coconut Palms on selected hill peaks
-        ctx.save();
-        ctx.fillStyle = '#0c111a';
-        ctx.strokeStyle = '#0c111a';
-        for (let hill of this.cityHills) {
-          if (hill.trees) {
-            const px = hill.x + hill.width * 0.5;
-            const py = this.V_HEIGHT - hill.height;
-            this.drawCoconutPalm(ctx, px, py, 26);
-          }
-        }
-        ctx.restore();
-
-        // 4. Animated Clouds with warm daylight rim light
+        // 2. Animated Clouds with warm daylight rim light
         for (let c of this.clouds) {
           c.x -= c.speed;
           if (c.x < -100) c.x = this.V_WIDTH + 80;
@@ -2407,11 +2621,7 @@
           ctx.fill();
         }
 
-        // 5. Road Ground with reflective warm daylight dashes
-        ctx.fillStyle = '#181b24';
-        ctx.fillRect(0, this.V_HEIGHT - 70, this.V_WIDTH, 70);
-
-        // Ground top highlight line
+        // 3. Ground top highlight line
         ctx.strokeStyle = '#ff7700';
         ctx.lineWidth = 2.5;
         ctx.beginPath();
@@ -2419,7 +2629,7 @@
         ctx.lineTo(this.V_WIDTH, this.V_HEIGHT - 70);
         ctx.stroke();
 
-        // Scrolling Road Dashes
+        // 4. Scrolling Road Dashes
         const roadOffset = (Date.now() * 0.15) % 40;
         ctx.strokeStyle = '#ffb300';
         ctx.lineWidth = 4;

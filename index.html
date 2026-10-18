@@ -1,0 +1,2897 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>പറക്കടാ വീരമണി! — Malayalam Troll Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700;900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       RESET & BASE STYLING
+       ========================================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    :root {
+      --bg-dark: #0b0c10;
+      --bg-panel: rgba(18, 20, 29, 0.88);
+      --orange-primary: #ff5e00;
+      --orange-bright: #ff8800;
+      --orange-glow: rgba(255, 94, 0, 0.6);
+      --gold: #ffca28;
+      --red-alert: #ff1744;
+      --text-light: #f5f5f7;
+      --text-dim: #9e9ea7;
+      --font-family: 'Manjari', 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: var(--font-family);
+      color: var(--text-light);
+      touch-action: none;
+      position: fixed;
+    }
+
+    /* Outer Wrapper for responsive desktop / mobile layout */
+    #app-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #1b1c24 0%, #08090d 100%);
+      overflow: hidden;
+    }
+
+    /* Canvas Frame */
+    #game-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 520px;
+      max-height: 940px;
+      aspect-ratio: 9 / 16;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 30px var(--orange-glow);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #111;
+    }
+
+    @media (max-width: 600px) {
+      #game-canvas-wrapper {
+        max-width: 100%;
+        max-height: 100%;
+        aspect-ratio: unset;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    /* =========================================================
+       UI OVERLAYS & MODALS
+       ========================================================= */
+    .screen-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 20px;
+      pointer-events: auto;
+      z-index: 100;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .hidden {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transform: scale(0.96);
+    }
+
+    /* Start / Audio Unlock Prompt */
+    #audio-gate-screen {
+      background: rgba(8, 9, 13, 0.96);
+      backdrop-filter: blur(12px);
+      justify-content: center;
+      text-align: center;
+      gap: 20px;
+      z-index: 999;
+    }
+
+    .gate-card {
+      background: linear-gradient(135deg, rgba(30, 32, 44, 0.9), rgba(15, 16, 22, 0.95));
+      border: 2px solid var(--orange-primary);
+      border-radius: 20px;
+      padding: 32px 24px;
+      box-shadow: 0 10px 40px rgba(255, 94, 0, 0.35);
+      max-width: 380px;
+      width: 90%;
+      animation: pulseGlow 2.5s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 20px rgba(255, 94, 0, 0.3); }
+      100% { box-shadow: 0 0 45px rgba(255, 94, 0, 0.7); }
+    }
+
+    /* Title Styling */
+    .brand-tag {
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--orange-bright);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .game-logo-text {
+      font-size: 2.7rem;
+      font-weight: 900;
+      line-height: 1.15;
+      background: linear-gradient(180deg, #ffffff 10%, #ff8800 55%, #ff3700 95%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.9));
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 1rem;
+      color: var(--text-dim);
+      margin-bottom: 18px;
+    }
+
+    /* Buttons */
+    .btn-epic {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: linear-gradient(180deg, #ff7b00 0%, #e64a00 100%);
+      color: #fff;
+      font-family: inherit;
+      font-size: 1.25rem;
+      font-weight: 900;
+      padding: 14px 30px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(255, 94, 0, 0.55), inset 0 2px 2px rgba(255, 255, 255, 0.45);
+      transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-decoration: none;
+      outline: none;
+    }
+
+    .btn-epic::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -80%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      transform: rotate(25deg);
+      animation: btnShimmer 3s infinite;
+    }
+
+    @keyframes btnShimmer {
+      0%, 40% { left: -80%; }
+      100% { left: 160%; }
+    }
+
+    .btn-epic:hover {
+      transform: scale(1.06) translateY(-2px);
+      box-shadow: 0 12px 32px rgba(255, 94, 0, 0.85);
+    }
+
+    .btn-epic:active {
+      transform: scale(0.98) translateY(1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-light);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 11px 22px;
+      border-radius: 30px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: var(--orange-bright);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* Widescreen Cinematic Letterbox Bars (Intro) */
+    .letterbox-bar {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 48px;
+      background: #000;
+      z-index: 600;
+      transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .letterbox-bar.top { top: 0; transform: translateY(-100%); }
+    .letterbox-bar.bottom { bottom: 0; transform: translateY(100%); }
+    .letterbox-active .letterbox-bar.top { transform: translateY(0); }
+    .letterbox-active .letterbox-bar.bottom { transform: translateY(0); }
+
+    /* Cinematic Intro Overlay */
+    #intro-screen {
+      background: #000;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 500;
+    }
+
+    .cinematic-text {
+      font-size: 2.3rem;
+      font-weight: 900;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      position: absolute;
+      width: 90%;
+      text-align: center;
+    }
+
+    .cinematic-text.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .gold-gradient {
+      background: linear-gradient(135deg, #fff, var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 20px rgba(255, 202, 40, 0.5));
+    }
+
+    .orange-gradient {
+      background: linear-gradient(180deg, #fff 10%, #ff8800 60%, #ff3700 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 25px rgba(255, 94, 0, 0.8));
+    }
+
+    /* Home Screen Overlay */
+    #home-screen {
+      background: linear-gradient(180deg, rgba(10, 11, 15, 0.5) 0%, rgba(10, 11, 15, 0.88) 100%);
+      backdrop-filter: blur(2px);
+    }
+
+    .home-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(6px);
+    }
+
+    .header-badge span.val {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .icon-btn {
+      min-width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.09);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+      backdrop-filter: blur(8px);
+    }
+
+    .icon-btn:hover {
+      background: var(--orange-primary);
+      border-color: var(--orange-bright);
+      transform: scale(1.08);
+    }
+
+    /* Sound visualizer wave bars */
+    .sound-waves {
+      display: inline-flex;
+      align-items: center;
+      gap: 2.5px;
+      height: 14px;
+      margin-left: 4px;
+    }
+    .sound-bar {
+      width: 2.5px;
+      background: #ffca28;
+      border-radius: 2px;
+      animation: soundWave 0.7s ease-in-out infinite alternate;
+    }
+    .sound-bar:nth-child(1) { height: 5px; animation-delay: 0.1s; }
+    .sound-bar:nth-child(2) { height: 12px; animation-delay: 0.25s; }
+    .sound-bar:nth-child(3) { height: 7px; animation-delay: 0.4s; }
+    .muted .sound-bar { animation: none; height: 3px; background: #666; }
+    @keyframes soundWave {
+      0% { height: 3px; }
+      100% { height: 13px; }
+    }
+
+    .home-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+      margin: auto 0;
+    }
+
+    .character-preview-box {
+      width: 140px;
+      height: 140px;
+      position: relative;
+      margin: 10px auto;
+      filter: drop-shadow(0 10px 25px rgba(255, 94, 0, 0.45));
+      animation: floatHero 2.4s ease-in-out infinite;
+    }
+
+    .hero-pedestal {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 84px;
+      height: 18px;
+      background: radial-gradient(ellipse at center, rgba(255, 136, 0, 0.7) 0%, rgba(255, 94, 0, 0) 70%);
+      border-radius: 50%;
+      animation: pedestalPulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pedestalPulse {
+      0%, 100% { transform: translateX(-50%) scale(0.9); opacity: 0.55; }
+      50% { transform: translateX(-50%) scale(1.15); opacity: 0.95; }
+    }
+
+    @keyframes floatHero {
+      0%, 100% { transform: translateY(0px) rotate(-3deg); }
+      50% { transform: translateY(-16px) rotate(4deg); }
+    }
+
+    .instructions-card {
+      background: rgba(18, 21, 30, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 12px 18px;
+      margin: 10px 0 18px;
+      max-width: 320px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      color: var(--text-dim);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .instructions-card strong {
+      color: var(--orange-bright);
+    }
+
+    .home-footer {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+    }
+
+    .credits {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 0.5px;
+    }
+
+    .credits a {
+      color: var(--orange-bright);
+      text-decoration: none;
+    }
+
+    /* HUD During Gameplay */
+    #hud-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .score-badge {
+      font-size: 3.4rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.95), 0 0 25px var(--orange-glow);
+      font-family: 'Montserrat', sans-serif;
+      line-height: 1;
+      animation: scorePulse 0.25s ease-out;
+    }
+
+    .hud-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .hud-pill {
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(6px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gold);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Event Notifications Banner */
+    #event-banner {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: linear-gradient(90deg, #ff1744, #ff5e00);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-size: 1.15rem;
+      font-weight: 900;
+      box-shadow: 0 0 35px rgba(255, 23, 68, 0.9);
+      border: 2px solid #fff;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 80;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    #event-banner.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Red Flashing Vignette for Tanker Event */
+    #red-alert-vignette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 60;
+      box-shadow: inset 0 0 70px 30px rgba(255, 0, 0, 0.7);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      animation: alertFlash 0.5s infinite alternate;
+    }
+
+    @keyframes alertFlash {
+      0% { opacity: 0.2; }
+      100% { opacity: 0.85; }
+    }
+
+    /* Game Over Modal */
+    #gameover-screen {
+      background: rgba(10, 11, 16, 0.94);
+      backdrop-filter: blur(14px);
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .gameover-card {
+      background: linear-gradient(180deg, #202330 0%, #12131b 100%);
+      border: 2px solid rgba(255, 94, 0, 0.45);
+      border-radius: 26px;
+      padding: 26px 22px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.95), 0 0 35px rgba(255, 94, 0, 0.28);
+    }
+
+    #new-record-tag {
+      background: linear-gradient(90deg, #ff9100, #ff1744);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 8px;
+      box-shadow: 0 0 18px rgba(255, 80, 0, 0.85);
+      animation: pulseGlow 1.2s infinite alternate;
+    }
+
+    .troll-loss-title {
+      font-size: 1.85rem;
+      font-weight: 900;
+      color: #ff334b;
+      margin-bottom: 4px;
+    }
+
+    .troll-punchline {
+      font-size: 0.93rem;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.35;
+    }
+
+    /* Medal Badge Box */
+    .medal-badge-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 202, 40, 0.28);
+      border-radius: 16px;
+      padding: 8px 16px;
+      margin-bottom: 18px;
+    }
+    .medal-icon {
+      font-size: 2.2rem;
+      filter: drop-shadow(0 0 12px rgba(255, 202, 40, 0.7));
+      animation: medalPulse 2.2s infinite ease-in-out;
+    }
+    @keyframes medalPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15) rotate(4deg); }
+    }
+    .medal-info {
+      text-align: left;
+    }
+    .medal-tier {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .medal-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .score-summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .score-box {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 14px;
+      padding: 10px 8px;
+    }
+
+    .score-box .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .score-box .number {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .score-box.best .number {
+      color: var(--gold);
+    }
+
+    .gameover-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Screen Shake effect on game canvas wrapper */
+    .screen-shake {
+      animation: heavyShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes heavyShake {
+      10%, 90% { transform: translate3d(-4px, 2px, 0); }
+      20%, 80% { transform: translate3d(6px, -4px, 0); }
+      30%, 50%, 70% { transform: translate3d(-7px, 6px, 0); }
+      40%, 60% { transform: translate3d(7px, -6px, 0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <div id="game-canvas-wrapper">
+      
+      <!-- WIDESCREEN THEATRICAL LETTERBOX BARS (INTRO) -->
+      <div id="letterbox-top" class="letterbox-bar top"></div>
+      <div id="letterbox-bottom" class="letterbox-bar bottom"></div>
+
+      <!-- MAIN CANVAS -->
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- HUD LAYER (VISIBLE DURING ACTIVE GAMEPLAY) -->
+      <div id="hud-layer" class="hidden">
+        <div class="hud-top">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div id="hud-score" class="score-badge">0</div>
+            <div id="hud-rank-pill" class="hud-pill" style="font-size: 0.75rem; padding: 3px 12px; color: #ffca28;">
+              <span id="hud-rank-val">🐣 നവാഗതൻ</span>
+            </div>
+          </div>
+          <div class="hud-right">
+            <div class="hud-pill" id="hud-best-pill">👑 BEST: <span id="hud-best-val">0</span></div>
+            <button id="btn-sound-toggle-hud" class="icon-btn" style="min-width: auto; padding: 0 14px; border-radius: 20px; height: 38px; font-size: 0.95rem;" title="Sound Toggle">
+              <span id="hud-sound-icon">🔊</span>
+              <span class="sound-waves" id="hud-sound-waves">
+                <span class="sound-bar"></span>
+                <span class="sound-bar"></span>
+                <span class="sound-bar"></span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENT BANNER -->
+      <div id="event-banner">🛵 ഓർഡർ എത്തി!</div>
+
+      <!-- RED ALERT FLASH OVERLAY -->
+      <div id="red-alert-vignette" class="hidden"></div>
+
+      <!-- 1. AUDIO GATE / INTRO START (AUTOPLAY POLICY UNLOCK) -->
+      <div id="audio-gate-screen" class="screen-overlay">
+        <div class="gate-card">
+          <div class="brand-tag">MALAYALAM TROLL ARCADE</div>
+          <h1 class="game-logo-text">പറക്കടാ<br>വീരമണി!</h1>
+          <p class="tagline">🔥 ഹൈ ലെവൽ റോസ്റ്റിംഗ് & 70 കോടിയുടെ ടാങ്കർ 🔥</p>
+          <div style="font-size: 0.88rem; color: #ff8800; margin-bottom: 22px;">
+            ⚠️ ഫുൾ വോള്യത്തിൽ സൗണ്ട് ആസ്വദിക്കാൻ തയ്യാറാണോ?
+          </div>
+          <button id="btn-start-experience" class="btn-epic">
+            <span>കളി തുടങ്ങാം!</span> 🚀
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. CINEMATIC INTRO OVERLAY -->
+      <div id="intro-screen" class="screen-overlay hidden">
+        <div id="scene1-text" class="cinematic-text gold-gradient">
+          <div style="font-size: 0.95rem; letter-spacing: 5px; color: #aaa; margin-bottom: 12px; text-transform: uppercase;">A Masterpiece Production</div>
+          Namith.dev<br><span style="font-size: 1.35rem; font-weight: 400; color: #ff8800;">presents</span>
+          <div style="font-size: 0.8rem; letter-spacing: 3px; color: #666; margin-top: 14px; text-transform: uppercase;">A Chaos Troll Creation</div>
+        </div>
+
+        <div id="scene2-text" class="cinematic-text">
+          <div style="display: inline-block; margin-bottom: 14px; filter: drop-shadow(0 0 16px rgba(255,255,255,0.7));">
+            <svg width="54" height="46" viewBox="0 0 1155 1000" fill="none">
+              <path d="M577.346 0L1154.69 1000H0L577.346 0Z" fill="#ffffff" />
+            </svg>
+          </div>
+          <div style="font-size: 1.15rem; color: #bbb; margin-bottom: 6px;">Co-presented by</div>
+          <div style="font-size: 2.9rem; font-weight: 900; letter-spacing: 3px;">Vercel</div>
+          <div style="font-size: 0.8rem; letter-spacing: 3px; color: #00e5ff; margin-top: 12px; text-transform: uppercase; font-weight: 700;">Fast • Bold • Reliable</div>
+        </div>
+
+        <div id="scene3-text" class="cinematic-text orange-gradient">
+          <div style="font-size: 1.05rem; color: #ffca28; letter-spacing: 3px; margin-bottom: 8px;">ഇതാ വരുന്നു അണ്ണൻ! 🔥</div>
+          <div style="font-size: 3.3rem; line-height: 1.15; font-weight: 900; text-shadow: 0 0 40px rgba(255,94,0,0.85);">പറക്കടാ<br>വീരമണി!</div>
+          <div style="font-size: 0.9rem; color: #fff; letter-spacing: 2px; margin-top: 12px; font-weight: 700; text-transform: uppercase;">The 70 Crore Saga</div>
+        </div>
+
+        <!-- Skip Intro Button -->
+        <button id="btn-skip-intro" class="btn-secondary" style="position: absolute; bottom: 32px; font-size: 0.82rem; padding: 8px 18px; opacity: 0.85;">
+          <span>സ്കിപ്പ് ഇൻട്രോ</span> ⏭️
+        </button>
+      </div>
+
+      <!-- 3. HOME SCREEN -->
+      <div id="home-screen" class="screen-overlay hidden">
+        <div class="home-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="header-badge" style="color: #ff9d00; border-color: rgba(255,157,0,0.3);">⚡ Namith.dev</span>
+            <span class="header-badge" style="color: #ffffff; border-color: rgba(255,255,255,0.25);">▲ Vercel</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="header-badge">
+              <span>👑 ഹൈസ്‌കോർ:</span>
+              <span class="val" id="home-best-score">0</span>
+            </div>
+            <button id="btn-sound-toggle-home" class="icon-btn" title="സൗണ്ട്">🔊</button>
+          </div>
+        </div>
+
+        <div class="home-center">
+          <div class="brand-tag">NAMITH.DEV & VERCEL PRESENTS</div>
+          <h1 class="game-logo-text">പറക്കടാ<br>വീരമണി!</h1>
+          
+          <div class="character-preview-box">
+            <div class="hero-pedestal"></div>
+            <canvas id="heroPreviewCanvas" width="140" height="140"></canvas>
+          </div>
+
+          <div class="instructions-card">
+            👉 <strong>ടച്ച് ചെയ്യൂ / SPACE / CLICK:</strong> വീരമണി പറക്കും!<br>
+            ⚠️ പൈപ്പുകളിൽ തട്ടാതെ നോക്കുക.<br>
+            🛵 <strong>സ്പെഷ്യൽ:</strong> ഡെലിവറി ബോയിയും 70 കോടിയുടെ മിലിറ്ററി ടാങ്കറും!
+          </div>
+
+          <button id="btn-play-game" class="btn-epic" style="font-size: 1.4rem; padding: 16px 44px; margin-bottom: 12px;">
+            <span>കളി തുടങ്ങാം!</span> 🎮
+          </button>
+
+          <button id="btn-replay-intro" class="btn-secondary" style="margin-top: 4px;">
+            റീപ്ലേ ഇൻട്രോ 🎬
+          </button>
+        </div>
+
+        <div class="home-footer">
+          <div class="credits">Made with chaos by <a href="https://namith.dev" target="_blank">Namith.dev</a></div>
+        </div>
+      </div>
+
+      <!-- 4. GAME OVER SCREEN -->
+      <div id="gameover-screen" class="screen-overlay hidden">
+        <div class="gameover-card">
+          <div id="new-record-tag" class="hidden">🔥 പുതിയ റെക്കോർഡ്! (NEW RECORD!) 🔥</div>
+          <div class="troll-loss-title" id="loss-title">വീരമണി നിലംപതിച്ചു! 😂</div>
+          <div class="troll-punchline" id="loss-quote">"അയ്യോ അമ്മാ! എന്റെ 70 കോടിയുടെ ടാങ്കർ!"</div>
+
+          <!-- Dynamic Medal Reward Box -->
+          <div class="medal-badge-box">
+            <div class="medal-icon" id="medal-icon">🥉</div>
+            <div class="medal-info">
+              <div class="medal-tier" id="medal-tier">BRONZE TIER</div>
+              <div class="medal-title" id="medal-title">ചായ കുടിയൻ വീരമണി</div>
+            </div>
+          </div>
+
+          <div class="score-summary-grid">
+            <div class="score-box">
+              <div class="label">സ്കോർ</div>
+              <div class="number" id="gameover-score">0</div>
+            </div>
+            <div class="score-box best">
+              <div class="label">ബെസ്റ്റ്</div>
+              <div class="number" id="gameover-best">0</div>
+            </div>
+          </div>
+
+          <div class="gameover-actions">
+            <button id="btn-restart-game" class="btn-epic">
+              <span>വീണ്ടും കളിക്കാം!</span> 🔄
+            </button>
+            <button id="btn-goto-home" class="btn-secondary">
+              <span>ഹോം സ്‌ക്രീൻ</span> 🏠
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* =====================================================================
+       PARAKKADA VEERAMONI (പറക്കടാ വീരമണി!) - JAVASCRIPT GAME ENGINE
+       ===================================================================== */
+
+    // GAME CONFIGURATION CONSTANTS
+    const CONFIG = {
+      ASSETS: {
+        CHARACTER_HEAD: 'https://files.catbox.moe/gq0f80.png',
+        MUSIC_INTRO_TANKER: 'https://files.catbox.moe/8ehr1r.mp3',
+        SFX_JUMP: 'https://files.catbox.moe/6zzkzq.mp3',
+        SFX_GAMEOVER: 'https://files.catbox.moe/9c1npa.mp3',
+        SFX_GAMEOVER_ALT: 'https://files.catbox.moe/ar4y6f.mp3',
+        MUSIC_DELIVERY: 'https://files.catbox.moe/3jkmgg.mp3'
+      },
+      PHYSICS: {
+        GRAVITY: 0.38,
+        JUMP_FORCE: -7.5,
+        TERMINAL_VELOCITY: 10,
+        BASE_SPEED: 2.5,
+        SPEED_INCREASE_RATE: 0.04,
+        MAX_SPEED: 4.8
+      },
+      OBSTACLES: {
+        SPAWN_INTERVAL: 130, // frames
+        GAP_SIZE: 175,
+        MIN_GAP_SIZE: 145,
+        PIPE_WIDTH: 74
+      },
+      EVENTS: {
+        MIN_INTERVAL_FRAMES: 700, // ~12-15 seconds minimum between random events
+        CHANCE_PER_CHECK: 0.003,
+        TANKER_PROBABILITY: 0.35 // 35% tanker delivery, 65% normal delivery
+      }
+    };
+
+    // GAME STATES
+    const STATES = {
+      GATE: 'GATE',
+      INTRO: 'INTRO',
+      HOME: 'HOME',
+      PLAYING: 'PLAYING',
+      GAME_OVER: 'GAME_OVER'
+    };
+
+    // AUDIO MANAGER WITH WEB AUDIO BACKUP
+    class SoundController {
+      constructor() {
+        this.muted = localStorage.getItem('veeramani_muted') === 'true';
+        this.audioContext = null;
+        this.tracks = {};
+        this.currentMusic = null;
+        this.audioUnlocked = false;
+
+        this.initAudioElements();
+      }
+
+      initAudioElements() {
+        // Safe loader for HTML5 Audio
+        const createAudio = (url) => {
+          const a = new Audio();
+          a.crossOrigin = 'anonymous';
+          a.src = url;
+          a.preload = 'auto';
+          return a;
+        };
+
+        try {
+          this.tracks.introTanker = createAudio(CONFIG.ASSETS.MUSIC_INTRO_TANKER);
+          this.tracks.delivery = createAudio(CONFIG.ASSETS.MUSIC_DELIVERY);
+          this.tracks.jump = createAudio(CONFIG.ASSETS.SFX_JUMP);
+          this.tracks.gameOver = createAudio(CONFIG.ASSETS.SFX_GAMEOVER);
+
+          // Handle alternative for gameover audio
+          this.tracks.gameOver.addEventListener('error', () => {
+            console.warn('Fail sound failed to load, switching to alternative');
+            this.tracks.gameOver = createAudio(CONFIG.ASSETS.SFX_GAMEOVER_ALT);
+          });
+        } catch (e) {
+          console.warn('Audio setup notice:', e);
+        }
+      }
+
+      unlock() {
+        if (this.audioUnlocked) return;
+        this.audioUnlocked = true;
+
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.audioContext = new AudioContextClass();
+            if (this.audioContext.state === 'suspended') {
+              this.audioContext.resume();
+            }
+          }
+        } catch (e) {
+          console.warn('WebAudio init error:', e);
+        }
+      }
+
+      playJump(isLow = false) {
+        if (this.muted) return;
+        const volume = isLow ? 0.15 : 1.0;
+        try {
+          if (this.tracks.jump) {
+            this.tracks.jump.volume = volume;
+            this.tracks.jump.currentTime = 0;
+            const playPromise = this.tracks.jump.play();
+            if (playPromise) playPromise.catch(() => this.synthJump(volume));
+          } else {
+            this.synthJump(volume);
+          }
+        } catch (e) {
+          this.synthJump(volume);
+        }
+      }
+
+      playGameOver() {
+        if (this.muted) return;
+        this.stopMusic();
+        try {
+          if (this.tracks.gameOver) {
+            this.tracks.gameOver.currentTime = 0;
+            const p = this.tracks.gameOver.play();
+            if (p) p.catch(() => this.synthCrash());
+          } else {
+            this.synthCrash();
+          }
+        } catch (e) {
+          this.synthCrash();
+        }
+      }
+
+      playMusic(type, loop = false) {
+        if (this.muted) return;
+        this.stopMusic();
+
+        let track = null;
+        if (type === 'intro' || type === 'tanker') {
+          track = this.tracks.introTanker;
+        } else if (type === 'delivery') {
+          track = this.tracks.delivery;
+        }
+
+        if (track) {
+          this.currentMusic = track;
+          track.loop = loop;
+          track.currentTime = 0;
+          // Tanker delivery music is HIGH (maximum volume)
+          if (type === 'tanker') {
+            track.volume = 1.0;
+          } else {
+            track.volume = 0.85;
+          }
+          const p = track.play();
+          if (p) p.catch((err) => console.log('Music play prevented:', err));
+        }
+      }
+
+      stopMusic() {
+        if (this.currentMusic) {
+          try {
+            this.currentMusic.pause();
+            this.currentMusic.currentTime = 0;
+          } catch (e) {}
+          this.currentMusic = null;
+        }
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        localStorage.setItem('veeramani_muted', this.muted);
+        if (this.muted) {
+          this.stopMusic();
+        }
+        return this.muted;
+      }
+
+      // Procedural WebAudio Fallbacks (Guarantees sound even if offline or network blocks catbox)
+      synthJump(volume = 1.0) {
+        if (this.muted || !this.audioContext) return;
+        try {
+          const ctx = this.audioContext;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(780, ctx.currentTime + 0.12);
+          const maxGain = 0.3 * volume;
+          gain.gain.setValueAtTime(maxGain, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.005, ctx.currentTime + 0.12);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.12);
+        } catch (e) {}
+      }
+
+      synthCrash() {
+        if (this.muted || !this.audioContext) return;
+        try {
+          const ctx = this.audioContext;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(35, ctx.currentTime + 0.35);
+          gain.gain.setValueAtTime(0.5, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.35);
+        } catch (e) {}
+      }
+
+      synthCashAlert() {
+        if (this.muted || !this.audioContext) return;
+        try {
+          const ctx = this.audioContext;
+          const now = ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.setValueAtTime(freq, now + i * 0.08);
+            gain.gain.setValueAtTime(0.25, now + i * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.15);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.08);
+            osc.stop(now + i * 0.08 + 0.16);
+          });
+        } catch (e) {}
+      }
+    }
+
+    // MAIN GAME CONTROLLER
+    class ParakkadaVeeramaniGame {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.heroPreviewCanvas = document.getElementById('heroPreviewCanvas');
+        this.previewCtx = this.heroPreviewCanvas ? this.heroPreviewCanvas.getContext('2d') : null;
+
+        this.sound = new SoundController();
+        this.state = STATES.GATE;
+
+        // Coordinates & Virtual Canvas Size (Base: 480x800)
+        this.V_WIDTH = 480;
+        this.V_HEIGHT = 800;
+        this.scale = 1;
+
+        // High Score
+        this.score = 0;
+        this.bestScore = parseInt(localStorage.getItem('veeramani_best_score') || '0', 10);
+
+        // Assets
+        this.heroImg = new Image();
+        this.heroImgLoaded = false;
+        this.heroImg.crossOrigin = 'anonymous';
+        this.heroImg.src = CONFIG.ASSETS.CHARACTER_HEAD;
+        this.heroImg.onload = () => {
+          this.heroImgLoaded = true;
+          this.drawHeroPreview();
+        };
+        this.heroImg.onerror = () => {
+          console.warn('Catbox character image failed to load, procedural troll face activated.');
+          this.heroImgLoaded = false;
+          this.drawHeroPreview();
+        };
+
+        // Game Entities
+        this.player = null;
+        this.obstacles = [];
+        this.particles = [];
+        this.clouds = [];
+        this.cityHills = [];
+
+        // Intro Scene Tracking
+        this.introTimeline = {
+          startTime: 0,
+          currentScene: 1,
+          tankX: -300,
+          tankSpeed: 7,
+          collided: false,
+          active: false
+        };
+
+        // Random Events Manager
+        this.eventManager = {
+          cooldown: 500,
+          currentEvent: null, // 'NORMAL_DELIVERY' | 'TANKER_DELIVERY'
+          timer: 0,
+          duration: 0,
+          data: {}
+        };
+
+        // Troll Loss Quotes in Malayalam
+        this.trollQuotes = [
+          "\"അയ്യോ അമ്മാ! എന്റെ 70 കോടിയുടെ ടാങ്കർ!\"",
+          "\"ചായയും പൊറോട്ടയും മേടിക്കാൻ നിന്നതാ... പണി പാളി!\"",
+          "\"പറക്കടാ എന്ന് പറഞ്ഞപ്പോൾ ഇങ്ങനെയല്ല ഉദ്ദേശിച്ചത്! 😂\"",
+          "\"ടാങ്കർ കണ്ടപ്പോൾ കണ്ണ് തള്ളി നിലത്തു വീണു!\"",
+          "\"ഇതൊക്കെ എന്ത്! അടുത്ത തവണ 70 കോടി നമ്മൾ തൂക്കും!\"",
+          "\"സാർ ഓർഡർ തന്നപ്പോ തെന്നിപ്പോയി അണ്ണാ!\"",
+          "\"വീരമണി തോൽക്കില്ല... റീസ്റ്റാർട്ട് അടിക്കൂ മക്കളേ!\""
+        ];
+
+        this.initDOM();
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        this.initWorldScenery();
+        this.resetGameVariables();
+
+        // Main RAF Loop
+        this.lastTime = performance.now();
+        requestAnimationFrame((t) => this.gameLoop(t));
+      }
+
+      initDOM() {
+        // UI Containers
+        this.ui = {
+          wrapper: document.getElementById('game-canvas-wrapper'),
+          gateScreen: document.getElementById('audio-gate-screen'),
+          introScreen: document.getElementById('intro-screen'),
+          homeScreen: document.getElementById('home-screen'),
+          gameoverScreen: document.getElementById('gameover-screen'),
+          hudLayer: document.getElementById('hud-layer'),
+          hudScore: document.getElementById('hud-score'),
+          hudRankVal: document.getElementById('hud-rank-val'),
+          hudSoundIcon: document.getElementById('hud-sound-icon'),
+          hudSoundWaves: document.getElementById('hud-sound-waves'),
+          hudBestVal: document.getElementById('hud-best-val'),
+          homeBestVal: document.getElementById('home-best-score'),
+          gameoverScore: document.getElementById('gameover-score'),
+          gameoverBest: document.getElementById('gameover-best'),
+          newRecordTag: document.getElementById('new-record-tag'),
+          medalIcon: document.getElementById('medal-icon'),
+          medalTier: document.getElementById('medal-tier'),
+          medalTitle: document.getElementById('medal-title'),
+          lossQuote: document.getElementById('loss-quote'),
+          eventBanner: document.getElementById('event-banner'),
+          redVignette: document.getElementById('red-alert-vignette'),
+          scene1: document.getElementById('scene1-text'),
+          scene2: document.getElementById('scene2-text'),
+          scene3: document.getElementById('scene3-text'),
+          btnSoundHome: document.getElementById('btn-sound-toggle-home'),
+          btnSoundHud: document.getElementById('btn-sound-toggle-hud')
+        };
+
+        // Update Initial High Scores in UI
+        this.ui.homeBestVal.textContent = this.bestScore;
+        this.ui.hudBestVal.textContent = this.bestScore;
+
+        // Buttons
+        document.getElementById('btn-start-experience').addEventListener('click', () => {
+          this.sound.unlock();
+          this.startCinematicIntro();
+        });
+
+        document.getElementById('btn-play-game').addEventListener('click', () => {
+          this.startGameplay();
+        });
+
+        document.getElementById('btn-skip-intro').addEventListener('click', () => {
+          this.finishIntroAndGoHome();
+        });
+
+        document.getElementById('btn-replay-intro').addEventListener('click', () => {
+          this.startCinematicIntro();
+        });
+
+        document.getElementById('btn-restart-game').addEventListener('click', () => {
+          this.startGameplay();
+        });
+
+        document.getElementById('btn-goto-home').addEventListener('click', () => {
+          this.goToHome();
+        });
+
+        // Sound Toggles with visualizer wave sync
+        const updateSoundIcons = (muted) => {
+          const icon = muted ? '🔇' : '🔊';
+          this.ui.btnSoundHome.textContent = icon;
+          if (this.ui.hudSoundIcon) this.ui.hudSoundIcon.textContent = icon;
+          if (this.ui.hudSoundWaves) {
+            if (muted) {
+              this.ui.hudSoundWaves.parentElement.classList.add('muted');
+            } else {
+              this.ui.hudSoundWaves.parentElement.classList.remove('muted');
+            }
+          }
+        };
+        updateSoundIcons(this.sound.muted);
+
+        const handleSoundToggle = (e) => {
+          e.stopPropagation();
+          const muted = this.sound.toggleMute();
+          updateSoundIcons(muted);
+        };
+        this.ui.btnSoundHome.addEventListener('click', handleSoundToggle);
+        this.ui.btnSoundHud.addEventListener('click', handleSoundToggle);
+
+        // Gameplay Jump Inputs (Pointer, Mouse, Touch, Keys)
+        const triggerJump = (e) => {
+          if (e) {
+            // Prevent scrolling on mobile touch
+            if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
+          }
+
+          if (this.state === STATES.PLAYING) {
+            this.handlePlayerJump();
+          }
+        };
+
+        // Canvas Click & Touch
+        this.canvas.addEventListener('pointerdown', (e) => {
+          if (this.state === STATES.PLAYING) {
+            triggerJump(e);
+          }
+        });
+
+        // Keyboard Inputs
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space' || e.code === 'ArrowUp') {
+            e.preventDefault();
+            if (this.state === STATES.PLAYING) {
+              triggerJump(e);
+            } else if (this.state === STATES.GAME_OVER) {
+              this.startGameplay();
+            }
+          } else if (e.code === 'KeyT' && this.state === STATES.PLAYING) {
+            // Secret Shortcut: Test Tanker Delivery Event
+            this.triggerRandomEvent(true);
+          } else if (e.code === 'KeyD' && this.state === STATES.PLAYING) {
+            // Secret Shortcut: Test Normal Delivery Event
+            this.triggerRandomEvent(false);
+          }
+        });
+      }
+
+      resize() {
+        const wrapper = this.ui.wrapper;
+        const rect = wrapper.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+        this.scale = this.canvas.width / this.V_WIDTH;
+        this.V_HEIGHT = this.canvas.height / this.scale;
+
+        this.ctx.setTransform(this.scale, 0, 0, this.scale, 0, 0);
+      }
+
+      initWorldScenery() {
+        // Generate Clouds
+        this.clouds = [];
+        for (let i = 0; i < 6; i++) {
+          this.clouds.push({
+            x: Math.random() * this.V_WIDTH,
+            y: 40 + Math.random() * 220,
+            speed: 0.3 + Math.random() * 0.4,
+            radius: 26 + Math.random() * 24,
+            opacity: 0.15 + Math.random() * 0.25
+          });
+        }
+
+        // Generate Kerala Hills / Troll City Skyline
+        this.cityHills = [];
+        let curX = 0;
+        while (curX < this.V_WIDTH + 150) {
+          const width = 80 + Math.random() * 70;
+          this.cityHills.push({
+            x: curX,
+            width: width,
+            height: 120 + Math.random() * 110,
+            trees: Math.random() > 0.4
+          });
+          curX += width;
+        }
+      }
+
+      resetGameVariables() {
+        this.player = {
+          x: 100,
+          y: this.V_HEIGHT / 2 - 30,
+          width: 54,
+          height: 54,
+          vy: 0,
+          rotation: 0,
+          wingAngle: 0,
+          isDead: false,
+          hasCashRain: false
+        };
+
+        this.obstacles = [];
+        this.particles = [];
+        this.score = 0;
+        this.ui.hudScore.textContent = '0';
+        this.obstacleTimer = 0;
+        this.gameSpeed = CONFIG.PHYSICS.BASE_SPEED;
+
+        this.eventManager = {
+          cooldown: 400,
+          currentEvent: null,
+          timer: 0,
+          duration: 0,
+          data: {}
+        };
+        this.updateLiveRank();
+        this.hideEventBanner();
+        this.hideRedAlert();
+      }
+
+      // =========================================================
+      // CINEMATIC INTRO SEQUENCE
+      // =========================================================
+      startCinematicIntro() {
+        this.state = STATES.INTRO;
+        this.hideAllScreens();
+        this.ui.wrapper.classList.add('letterbox-active');
+        this.ui.introScreen.classList.remove('hidden');
+
+        this.sound.playMusic('intro', false);
+
+        this.introTimeline = {
+          startTime: performance.now(),
+          currentScene: 1,
+          tankX: -260,
+          tankSpeed: 8,
+          collided: false,
+          active: true,
+          flashAlpha: 0,
+          freezeCount: 0,
+          freezeDone: false,
+          explosionDone: false
+        };
+
+        this.updateIntroText(1);
+
+        // Scene Timings (2 seconds per scene)
+        setTimeout(() => {
+          if (this.state === STATES.INTRO) this.updateIntroText(2);
+        }, 2100);
+
+        setTimeout(() => {
+          if (this.state === STATES.INTRO) this.updateIntroText(3);
+        }, 4200);
+
+        setTimeout(() => {
+          if (this.state === STATES.INTRO) {
+            this.introTimeline.currentScene = 4; // Tanker Collision Event!
+            this.hideAllIntroText();
+          }
+        }, 6300);
+      }
+
+      updateIntroText(sceneNum) {
+        this.hideAllIntroText();
+        this.introTimeline.currentScene = sceneNum;
+        if (sceneNum === 1) this.ui.scene1.classList.add('active');
+        if (sceneNum === 2) this.ui.scene2.classList.add('active');
+        if (sceneNum === 3) this.ui.scene3.classList.add('active');
+      }
+
+      hideAllIntroText() {
+        this.ui.scene1.classList.remove('active');
+        this.ui.scene2.classList.remove('active');
+        this.ui.scene3.classList.remove('active');
+      }
+
+      finishIntroAndGoHome() {
+        this.sound.stopMusic();
+        this.ui.wrapper.classList.remove('letterbox-active');
+        this.introTimeline.active = false;
+        this.goToHome();
+      }
+
+      goToHome() {
+        this.state = STATES.HOME;
+        this.sound.stopMusic();
+        this.ui.wrapper.classList.remove('letterbox-active');
+        this.hideAllScreens();
+        this.ui.homeScreen.classList.remove('hidden');
+        this.ui.homeBestVal.textContent = this.bestScore;
+        this.drawHeroPreview();
+      }
+
+      startGameplay() {
+        this.sound.unlock();
+        this.sound.stopMusic();
+        this.ui.wrapper.classList.remove('letterbox-active');
+        this.resetGameVariables();
+        this.state = STATES.PLAYING;
+
+        this.hideAllScreens();
+        this.ui.hudLayer.classList.remove('hidden');
+        this.ui.hudBestVal.textContent = this.bestScore;
+        this.updateLiveRank();
+
+        // Initial Jump impulse
+        this.handlePlayerJump();
+      }
+
+      hideAllScreens() {
+        this.ui.gateScreen.classList.add('hidden');
+        this.ui.introScreen.classList.add('hidden');
+        this.ui.homeScreen.classList.add('hidden');
+        this.ui.gameoverScreen.classList.add('hidden');
+        this.ui.hudLayer.classList.add('hidden');
+        this.hideEventBanner();
+        this.hideRedAlert();
+      }
+
+      // =========================================================
+      // PLAYER LOGIC & CONTROLS
+      // =========================================================
+      handlePlayerJump() {
+        if (!this.player || this.player.isDead) return;
+        this.player.vy = CONFIG.PHYSICS.JUMP_FORCE;
+
+        // If tanker delivery event is active: jumping sound is LOW, tanker delivery music is HIGH
+        const isTankerDelivery = this.eventManager && this.eventManager.currentEvent === 'TANKER_DELIVERY';
+        this.sound.playJump(isTankerDelivery);
+
+        // Spawn jump feather / puff particles
+        for (let i = 0; i < 6; i++) {
+          this.particles.push({
+            x: this.player.x + 10,
+            y: this.player.y + 36,
+            vx: (Math.random() - 0.5) * 4 - 2,
+            vy: Math.random() * 3 + 1,
+            size: 4 + Math.random() * 5,
+            color: 'rgba(255, 140, 0, 0.8)',
+            alpha: 1,
+            decay: 0.04
+          });
+        }
+      }
+
+      triggerGameOver() {
+        if (this.state === STATES.GAME_OVER) return;
+        this.state = STATES.GAME_OVER;
+        this.player.isDead = true;
+
+        this.sound.playGameOver();
+        this.triggerScreenShake();
+
+        // Explosion particles
+        this.spawnComicExplosion(this.player.x + 24, this.player.y + 24);
+
+        // Check if new best score
+        const isNewRecord = this.score > this.bestScore && this.score > 0;
+        if (this.score > this.bestScore) {
+          this.bestScore = this.score;
+          localStorage.setItem('veeramani_best_score', this.bestScore);
+        }
+
+        // Show Game Over Screen with delay for dramatic effect
+        setTimeout(() => {
+          this.ui.hudLayer.classList.add('hidden');
+          this.ui.gameoverScreen.classList.remove('hidden');
+
+          // New Record Tag & Celebration
+          if (isNewRecord) {
+            this.ui.newRecordTag.classList.remove('hidden');
+            for (let c = 0; c < 20; c++) {
+              this.particles.push({
+                x: this.V_WIDTH / 2 + (Math.random() - 0.5) * 180,
+                y: this.V_HEIGHT * 0.35,
+                vx: (Math.random() - 0.5) * 6,
+                vy: -Math.random() * 5 - 2,
+                size: 14,
+                text: '⭐',
+                color: '#ffd700',
+                alpha: 1,
+                decay: 0.02
+              });
+            }
+          } else {
+            this.ui.newRecordTag.classList.add('hidden');
+          }
+
+          // Dynamic Medal System based on performance
+          if (this.score >= 30) {
+            this.ui.medalIcon.textContent = '💎';
+            this.ui.medalTier.textContent = 'DIAMOND TIER';
+            this.ui.medalTitle.textContent = '70 കോടിയുടെ സുൽത്താൻ 👑';
+          } else if (this.score >= 15) {
+            this.ui.medalIcon.textContent = '🥇';
+            this.ui.medalTier.textContent = 'GOLD TIER';
+            this.ui.medalTitle.textContent = 'ടാങ്കർ കമാൻഡർ വീരമണി 🚜';
+          } else if (this.score >= 5) {
+            this.ui.medalIcon.textContent = '🥈';
+            this.ui.medalTier.textContent = 'SILVER TIER';
+            this.ui.medalTitle.textContent = 'പറക്കും വീരൻ (പൊറോട്ട പ്രോ)';
+          } else {
+            this.ui.medalIcon.textContent = '🥉';
+            this.ui.medalTier.textContent = 'BRONZE TIER';
+            this.ui.medalTitle.textContent = 'ചായ കുടിയൻ വീരമണി ☕';
+          }
+
+          // Smooth score roll-up
+          this.animateScoreRoll(this.score, this.ui.gameoverScore);
+          this.ui.gameoverBest.textContent = this.bestScore;
+
+          // Pick random troll quote
+          const randomQuote = this.trollQuotes[Math.floor(Math.random() * this.trollQuotes.length)];
+          this.ui.lossQuote.textContent = randomQuote;
+        }, 650);
+      }
+
+      animateScoreRoll(targetScore, element) {
+        if (targetScore <= 0) {
+          element.textContent = '0';
+          return;
+        }
+        const duration = 500;
+        const startTime = performance.now();
+        const step = (time) => {
+          const progress = Math.min((time - startTime) / duration, 1);
+          element.textContent = Math.floor(progress * targetScore);
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            element.textContent = targetScore;
+          }
+        };
+        requestAnimationFrame(step);
+      }
+
+      updateLiveRank() {
+        if (!this.ui.hudRankVal) return;
+        if (this.score >= 25) {
+          this.ui.hudRankVal.textContent = '👑 70 കോടിയുടെ സുൽത്താൻ';
+        } else if (this.score >= 12) {
+          this.ui.hudRankVal.textContent = '🚜 ടാങ്കർ വേട്ടക്കാരൻ';
+        } else if (this.score >= 5) {
+          this.ui.hudRankVal.textContent = '🚀 പറക്കും അണ്ണൻ';
+        } else {
+          this.ui.hudRankVal.textContent = '🐣 നവാഗതൻ';
+        }
+      }
+
+      triggerScreenShake() {
+        this.ui.wrapper.classList.remove('screen-shake');
+        void this.ui.wrapper.offsetWidth; // force reflow
+        this.ui.wrapper.classList.add('screen-shake');
+      }
+
+      // =========================================================
+      // RANDOM DELIVERY EVENTS MANAGER
+      // =========================================================
+      updateRandomEvents() {
+        // If an event is currently playing
+        if (this.eventManager.currentEvent) {
+          this.eventManager.timer++;
+
+          // EVENT A: NORMAL ORDER DELIVERY
+          if (this.eventManager.currentEvent === 'NORMAL_DELIVERY') {
+            const data = this.eventManager.data;
+            if (data.stage === 'ENTERING') {
+              data.scooterX += 4.5;
+              if (data.scooterX >= this.player.x - 20) {
+                data.stage = 'DELIVERING';
+                data.holdTimer = 0;
+                this.showEventBanner('🛵 “Sir, your order!” 📦');
+              }
+            } else if (data.stage === 'DELIVERING') {
+              data.holdTimer++;
+              // Follow player loosely during delivery
+              data.scooterX += (this.player.x - 30 - data.scooterX) * 0.1;
+              if (data.holdTimer > 130) {
+                data.stage = 'EXITING';
+                this.hideEventBanner();
+              }
+            } else if (data.stage === 'EXITING') {
+              data.scooterX += 7.5;
+              if (data.scooterX > this.V_WIDTH + 150) {
+                // Event Complete
+                this.finishCurrentEvent();
+              }
+            }
+          }
+
+          // EVENT B: MILITARY TANKER DELIVERY (70 CRORE RUPEES!)
+          else if (this.eventManager.currentEvent === 'TANKER_DELIVERY') {
+            const data = this.eventManager.data;
+            if (data.stage === 'WARNING') {
+              data.warningTimer++;
+              if (data.warningTimer > 70) {
+                data.stage = 'TANKER_ENTER';
+                this.sound.playMusic('tanker', false);
+                this.showEventBanner('🚨 “Sir, tanker delivery! 70 Crore Rupees!” 🚨');
+              }
+            } else if (data.stage === 'TANKER_ENTER') {
+              data.tankerX += 3.8;
+              data.moneyCounter = Math.min(700000000, data.moneyCounter + 9500000);
+
+              // Spawn floating cash rupee symbols
+              if (Math.random() < 0.6) {
+                this.particles.push({
+                  x: data.tankerX + 110 + Math.random() * 80,
+                  y: this.V_HEIGHT - 130 - Math.random() * 40,
+                  vx: (Math.random() - 0.5) * 5,
+                  vy: -Math.random() * 5 - 2,
+                  size: 16,
+                  color: '#ffca28',
+                  text: '₹',
+                  alpha: 1,
+                  decay: 0.02
+                });
+              }
+
+              if (data.tankerX > 70) {
+                data.stage = 'CELEBRATING';
+                data.holdTimer = 0;
+                this.sound.synthCashAlert();
+              }
+            } else if (data.stage === 'CELEBRATING') {
+              data.holdTimer++;
+              data.moneyCounter = 700000000;
+              // Raining money
+              if (Math.random() < 0.4) {
+                this.particles.push({
+                  x: Math.random() * this.V_WIDTH,
+                  y: -20,
+                  vx: (Math.random() - 0.5) * 3,
+                  vy: Math.random() * 4 + 2,
+                  size: 14,
+                  color: '#ffd700',
+                  text: '₹',
+                  alpha: 1,
+                  decay: 0.015
+                });
+              }
+
+              if (data.holdTimer > 180) {
+                data.stage = 'TANKER_EXIT';
+                this.hideEventBanner();
+                this.hideRedAlert();
+              }
+            } else if (data.stage === 'TANKER_EXIT') {
+              data.tankerX += 5.2;
+              if (data.tankerX > this.V_WIDTH + 320) {
+                this.finishCurrentEvent();
+              }
+            }
+          }
+
+          return;
+        }
+
+        // Event Cooldown
+        this.eventManager.cooldown--;
+        if (this.eventManager.cooldown <= 0) {
+          // Check probability
+          if (Math.random() < CONFIG.EVENTS.CHANCE_PER_CHECK) {
+            this.triggerRandomEvent();
+          }
+        }
+      }
+
+      triggerRandomEvent(forceType = null) {
+        let isTanker = false;
+        if (forceType !== null) {
+          isTanker = !!forceType;
+        } else {
+          isTanker = Math.random() < CONFIG.EVENTS.TANKER_PROBABILITY;
+        }
+
+        if (isTanker) {
+          // Trigger Event B: Tanker Delivery
+          this.eventManager.currentEvent = 'TANKER_DELIVERY';
+          this.eventManager.timer = 0;
+          this.eventManager.data = {
+            stage: 'WARNING',
+            warningTimer: 0,
+            tankerX: -340,
+            moneyCounter: 0,
+            holdTimer: 0
+          };
+          this.showRedAlert();
+          this.showEventBanner('⚠️ മുന്നറിയിപ്പ്! TANKER DELIVERY AHEAD! ⚠️');
+        } else {
+          // Trigger Event A: Normal Delivery
+          this.eventManager.currentEvent = 'NORMAL_DELIVERY';
+          this.eventManager.timer = 0;
+          this.eventManager.data = {
+            stage: 'ENTERING',
+            scooterX: -140,
+            holdTimer: 0
+          };
+          this.sound.playMusic('delivery', false);
+        }
+
+        this.eventManager.cooldown = CONFIG.EVENTS.MIN_INTERVAL_FRAMES;
+      }
+
+      finishCurrentEvent() {
+        this.eventManager.currentEvent = null;
+        this.eventManager.cooldown = CONFIG.EVENTS.MIN_INTERVAL_FRAMES;
+        this.sound.stopMusic();
+        if (this.sound.tracks.jump) {
+          this.sound.tracks.jump.volume = 1.0;
+        }
+        this.hideEventBanner();
+        this.hideRedAlert();
+      }
+
+      showEventBanner(text) {
+        this.ui.eventBanner.textContent = text;
+        this.ui.eventBanner.classList.add('show');
+      }
+
+      hideEventBanner() {
+        this.ui.eventBanner.classList.remove('show');
+      }
+
+      showRedAlert() {
+        this.ui.redVignette.classList.remove('hidden');
+      }
+
+      hideRedAlert() {
+        this.ui.redVignette.classList.add('hidden');
+      }
+
+      // =========================================================
+      // OBSTACLE GENERATION & MOVEMENT
+      // =========================================================
+      updateObstacles() {
+        this.obstacleTimer++;
+
+        // Speed ramps up slightly with score
+        this.gameSpeed = Math.min(
+          CONFIG.PHYSICS.MAX_SPEED,
+          CONFIG.PHYSICS.BASE_SPEED + this.score * CONFIG.PHYSICS.SPEED_INCREASE_RATE
+        );
+
+        // Gap shrinks slightly with score but never gets impossible
+        const currentGap = Math.max(
+          CONFIG.OBSTACLES.MIN_GAP_SIZE,
+          CONFIG.OBSTACLES.GAP_SIZE - Math.floor(this.score / 6) * 4
+        );
+
+        // Spawn new obstacle
+        if (this.obstacleTimer >= CONFIG.OBSTACLES.SPAWN_INTERVAL) {
+          this.obstacleTimer = 0;
+
+          // Don't spawn cramped obstacles during active tanker delivery
+          if (this.eventManager.currentEvent === 'TANKER_DELIVERY' && this.eventManager.data.stage !== 'TANKER_EXIT') {
+            // Keep safe airspace for comedy scene
+            return;
+          }
+
+          const topMin = 80;
+          const topMax = this.V_HEIGHT - currentGap - 160;
+          const gapTop = topMin + Math.random() * (topMax - topMin);
+
+          // Obstacle Troll Themes: 0: PWD Barricade, 1: Military Tower, 2: Electric Post
+          const themeType = Math.floor(Math.random() * 3);
+
+          this.obstacles.push({
+            x: this.V_WIDTH + 10,
+            gapTop: gapTop,
+            gapBottom: gapTop + currentGap,
+            width: CONFIG.OBSTACLES.PIPE_WIDTH,
+            passed: false,
+            theme: themeType,
+            signText: Math.random() > 0.4 ? this.getRandomSignText() : null
+          });
+        }
+
+        // Move Obstacles
+        for (let i = this.obstacles.length - 1; i >= 0; i--) {
+          const obs = this.obstacles[i];
+          obs.x -= this.gameSpeed;
+
+          // Score counting
+          if (!obs.passed && obs.x + obs.width < this.player.x) {
+            obs.passed = true;
+            this.score++;
+            this.ui.hudScore.textContent = this.score;
+            this.updateLiveRank();
+
+            // Little score bounce
+            this.ui.hudScore.style.transform = 'scale(1.25)';
+            setTimeout(() => { this.ui.hudScore.style.transform = 'scale(1)'; }, 150);
+
+            // Pop score particles
+            for (let k = 0; k < 5; k++) {
+              this.particles.push({
+                x: this.player.x + 20,
+                y: this.player.y,
+                vx: (Math.random() - 0.5) * 4,
+                vy: -Math.random() * 3 - 1,
+                size: 5,
+                color: '#ffca28',
+                alpha: 1,
+                decay: 0.05
+              });
+            }
+          }
+
+          // Check Collisions
+          if (this.checkCollision(this.player, obs)) {
+            this.triggerGameOver();
+          }
+
+          // Remove off-screen obstacles
+          if (obs.x + obs.width < -80) {
+            this.obstacles.splice(i, 1);
+          }
+        }
+      }
+
+      getRandomSignText() {
+        const signs = [
+          'പണി നടക്കുന്നു ⚠️',
+          '70 കോടി വഴി 👉',
+          'സൂക്ഷിക്കുക!',
+          'വീരമണി സ്റ്റോപ്പ് 🛑',
+          'NO ENTRY 🚫',
+          'ടാങ്കർ ഏരിയ 🚜'
+        ];
+        return signs[Math.floor(Math.random() * signs.length)];
+      }
+
+      checkCollision(player, obs) {
+        // Player hitbox (slightly smaller than visual size for fair gameplay)
+        const hitX = player.x + 8;
+        const hitY = player.y + 6;
+        const hitW = player.width - 16;
+        const hitH = player.height - 12;
+
+        // Check Pipe X overlap
+        if (hitX + hitW > obs.x && hitX < obs.x + obs.width) {
+          // Check collision with Top Pipe or Bottom Pipe
+          if (hitY < obs.gapTop || hitY + hitH > obs.gapBottom) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // =========================================================
+      // PARTICLE ENGINE
+      // =========================================================
+      updateParticles() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= p.decay;
+
+          if (p.alpha <= 0) {
+            this.particles.splice(i, 1);
+          }
+        }
+      }
+
+      drawParticles() {
+        const ctx = this.ctx;
+        for (let p of this.particles) {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.alpha);
+
+          if (p.text) {
+            ctx.fillStyle = p.color;
+            ctx.font = `900 ${p.size}px Montserrat, sans-serif`;
+            ctx.fillText(p.text, p.x, p.y);
+          } else {
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+      }
+
+      spawnComicExplosion(x, y) {
+        // Starburst comic particles
+        const colors = ['#ff1744', '#ff8800', '#ffd700', '#ffffff', '#222222'];
+        for (let i = 0; i < 40; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2 + Math.random() * 8;
+          this.particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 4 + Math.random() * 7,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            alpha: 1,
+            decay: 0.02 + Math.random() * 0.02
+          });
+        }
+      }
+
+      // =========================================================
+      // DRAWING ROUTINES: CHARACTER, WORLD, TANKER, SCOOTER
+      // =========================================================
+
+      drawCharacter(ctx, x, y, rotation, scale = 1, wingAngle = 0) {
+        ctx.save();
+        ctx.translate(x + 27 * scale, y + 27 * scale);
+        ctx.rotate(rotation);
+        ctx.scale(scale, scale);
+
+        // 1. Animated fluttering Kerala mundu / superhero cape
+        ctx.save();
+        ctx.fillStyle = '#fdfdfd';
+        ctx.strokeStyle = '#ffca28'; // Kasavu gold border
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        const flutter = Math.sin(wingAngle * 1.5) * 8;
+        ctx.moveTo(-18, 12);
+        ctx.quadraticCurveTo(-38 + flutter, 20 + flutter, -30, 36);
+        ctx.lineTo(-12, 26);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // 2. Comical Cartoon Wings / Jetpack
+        ctx.save();
+        ctx.fillStyle = '#ff6b00';
+        ctx.strokeStyle = '#b83b00';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const wingFlap = Math.sin(wingAngle) * 16;
+        ctx.ellipse(-14, 2, 22, 10 + Math.abs(wingFlap) * 0.4, (-30 + wingFlap) * Math.PI / 180, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // 3. Cartoon Torso & Limbs
+        ctx.fillStyle = '#222';
+        ctx.fillRect(-10, 8, 16, 18);
+
+        // 4. MAIN HEAD: Use External Image if loaded, else Procedural Troll Caricature
+        const headSize = 44;
+        if (this.heroImgLoaded && this.heroImg.complete && this.heroImg.naturalWidth > 0) {
+          ctx.save();
+          // Circular comic clip with orange border
+          ctx.beginPath();
+          ctx.arc(0, -6, headSize / 2, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(this.heroImg, -headSize / 2, -6 - headSize / 2, headSize, headSize);
+          ctx.restore();
+
+          // Border ring
+          ctx.strokeStyle = '#ff8800';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, -6, headSize / 2 + 1, 0, Math.PI * 2);
+          ctx.stroke();
+        } else {
+          // Robust Procedural Troll Caricature Face (Graceful Fallback)
+          ctx.save();
+          // Skin
+          ctx.fillStyle = '#e8a87c';
+          ctx.strokeStyle = '#333';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(0, -6, 22, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Big Troll Mustache
+          ctx.fillStyle = '#111';
+          ctx.beginPath();
+          ctx.moveTo(-18, 0);
+          ctx.quadraticCurveTo(0, -4, 18, 0);
+          ctx.quadraticCurveTo(0, 10, -18, 0);
+          ctx.fill();
+
+          // Aviator / Troll Sunglasses
+          ctx.fillStyle = '#050505';
+          ctx.strokeStyle = '#ffca28';
+          ctx.lineWidth = 1.5;
+          // Left lens
+          ctx.beginPath();
+          ctx.roundRect(-16, -15, 13, 11, [4, 4, 8, 8]);
+          ctx.fill();
+          ctx.stroke();
+          // Right lens
+          ctx.beginPath();
+          ctx.roundRect(3, -15, 13, 11, [4, 4, 8, 8]);
+          ctx.fill();
+          ctx.stroke();
+          // Bridge
+          ctx.beginPath();
+          ctx.moveTo(-3, -10);
+          ctx.lineTo(3, -10);
+          ctx.stroke();
+
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      drawHeroPreview(wingAngle = 0) {
+        if (!this.previewCtx) return;
+        const ctx = this.previewCtx;
+        ctx.clearRect(0, 0, 140, 140);
+        this.drawCharacter(ctx, 42, 42, 0, 1.4, wingAngle);
+      }
+
+      // Draw Cartoon Military Tanker (Used in Intro Scene & Event B)
+      drawMilitaryTanker(ctx, x, y, scale = 1, showCashBow = false, wheelsRot = 0) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+
+        // 1. Tank Tread Tracks (Caterpillar)
+        ctx.fillStyle = '#1e241c';
+        ctx.strokeStyle = '#0e120c';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(10, 50, 160, 36, 18);
+        ctx.fill();
+        ctx.stroke();
+
+        // Rotating Road Wheels inside tracks
+        const wheelCount = 5;
+        for (let i = 0; i < wheelCount; i++) {
+          const wx = 30 + i * 30;
+          const wy = 68;
+          ctx.save();
+          ctx.translate(wx, wy);
+          ctx.rotate(wheelsRot);
+          // Wheel rim
+          ctx.fillStyle = '#404a3b';
+          ctx.strokeStyle = '#111';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 0, 13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // Wheel spokes
+          ctx.strokeStyle = '#68775f';
+          ctx.beginPath();
+          ctx.moveTo(-10, 0); ctx.lineTo(10, 0);
+          ctx.moveTo(0, -10); ctx.lineTo(0, 10);
+          ctx.stroke();
+          // Wheel hub
+          ctx.fillStyle = '#ffca28';
+          ctx.beginPath();
+          ctx.arc(0, 0, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 2. Tank Main Armored Chassis
+        ctx.fillStyle = '#4b5d44'; // Military olive green
+        ctx.strokeStyle = '#273322';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(18, 50);
+        ctx.lineTo(162, 50);
+        ctx.lineTo(152, 28);
+        ctx.lineTo(28, 28);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Side Star / Troll Insignia
+        ctx.fillStyle = '#ffd700';
+        ctx.font = '900 16px Montserrat';
+        ctx.fillText('★ 70Cr', 60, 44);
+
+        // 3. Cannon Turret Dome
+        ctx.fillStyle = '#3c4d36';
+        ctx.strokeStyle = '#232f1f';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(80, 22, 38, 18, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // 4. Massive Cannon Gun Barrel
+        ctx.fillStyle = '#2f3d2a';
+        ctx.strokeStyle = '#1a2217';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.rect(112, 14, 75, 14);
+        ctx.fill();
+        ctx.stroke();
+        // Muzzle brake on tip
+        ctx.fillStyle = '#1c2419';
+        ctx.beginPath();
+        ctx.roundRect(184, 11, 14, 20, 3);
+        ctx.fill();
+        ctx.stroke();
+
+        // 5. Commander Hatch & Animated Troll Officer
+        ctx.fillStyle = '#20291c';
+        ctx.beginPath();
+        ctx.ellipse(65, 8, 14, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Cartoon commander with military beret
+        ctx.fillStyle = '#e8a87c';
+        ctx.beginPath();
+        ctx.arc(65, -2, 10, 0, Math.PI * 2);
+        ctx.fill();
+        // Beret cap
+        ctx.fillStyle = '#b71c1c';
+        ctx.beginPath();
+        ctx.ellipse(65, -9, 13, 6, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // If Gift delivery event (Event B), draw giant delivery ribbon on cannon!
+        if (showCashBow) {
+          ctx.fillStyle = '#ff1744';
+          ctx.beginPath();
+          ctx.arc(140, 21, 14, 0, Math.PI * 2);
+          ctx.fill();
+          // Bow loops
+          ctx.beginPath();
+          ctx.ellipse(130, 10, 12, 8, -0.4, 0, Math.PI * 2);
+          ctx.ellipse(150, 10, 12, 8, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      // Draw Delivery Boy on Scooter (Event A)
+      drawDeliveryBoy(ctx, x, y) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        // Scooter Body (Red/Orange Zomato/Swiggy Troll style)
+        ctx.fillStyle = '#ff3d00';
+        ctx.strokeStyle = '#991f00';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(15, 30, 60, 18, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        // Spinning Wheels
+        const rot = (Date.now() / 50) % (Math.PI * 2);
+        [22, 68].forEach(wx => {
+          ctx.save();
+          ctx.translate(wx, 48);
+          ctx.rotate(rot);
+          ctx.fillStyle = '#222';
+          ctx.beginPath();
+          ctx.arc(0, 0, 12, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#eee';
+          ctx.beginPath();
+          ctx.arc(0, 0, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // Large Delivery Box on rear with "TrollEats"
+        ctx.fillStyle = '#ff6d00';
+        ctx.strokeStyle = '#bf360c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(10, 6, 26, 26, 4);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = '900 8px Montserrat';
+        ctx.fillText('EATS', 12, 22);
+
+        // Delivery Boy Rider
+        // Torso
+        ctx.fillStyle = '#ff5722';
+        ctx.fillRect(42, 10, 16, 22);
+        // Head & Helmet
+        ctx.fillStyle = '#d84315';
+        ctx.beginPath();
+        ctx.arc(50, 4, 12, 0, Math.PI * 2);
+        ctx.fill();
+        // Helmet Visor
+        ctx.fillStyle = '#212121';
+        ctx.fillRect(52, 0, 8, 6);
+
+        // Comic Speech Bubble: “Sir, your order!”
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#222222';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.roundRect(55, -48, 130, 36, 12);
+        ctx.fill();
+        ctx.stroke();
+        // Pointer
+        ctx.beginPath();
+        ctx.moveTo(70, -12);
+        ctx.lineTo(60, 0);
+        ctx.lineTo(82, -12);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#000000';
+        ctx.font = '900 12px Montserrat, sans-serif';
+        ctx.fillText('Sir, your order! 📦', 66, -30);
+        ctx.font = '700 9px Manjari, sans-serif';
+        ctx.fillStyle = '#d84315';
+        ctx.fillText('ചൂടുള്ള പൊറോട്ട & ചായ!', 66, -18);
+        ctx.restore();
+
+        ctx.restore();
+      }
+
+      // Draw World Environment (Daylight Circle / Sun, Parallax Hills with Palms, Clouds, Ground)
+      drawBackground() {
+        const ctx = this.ctx;
+
+        // 1. Tropical Morning / Daylight Sky Gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, this.V_HEIGHT);
+        skyGrad.addColorStop(0, '#101a2f');    // Deep tropical azure
+        skyGrad.addColorStop(0.35, '#20395e'); // Brilliant morning sky
+        skyGrad.addColorStop(0.65, '#b85422'); // Warm amber daylight
+        skyGrad.addColorStop(0.85, '#ff9633'); // Golden sunburst horizon
+        skyGrad.addColorStop(1, '#33170c');    // Ground horizon haze
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, this.V_WIDTH, this.V_HEIGHT);
+
+        // 2. THE DAYLIGHT CIRCLE (RADIANT SUN & GOD RAYS)
+        const sunX = this.V_WIDTH * 0.74;
+        const sunY = 135;
+        const sunRadius = 34;
+
+        // A. Ambient Solar Corona (Outer Halo)
+        const coronaGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 240);
+        coronaGrad.addColorStop(0, 'rgba(255, 230, 140, 0.45)');
+        coronaGrad.addColorStop(0.3, 'rgba(255, 160, 40, 0.22)');
+        coronaGrad.addColorStop(0.7, 'rgba(255, 100, 20, 0.08)');
+        coronaGrad.addColorStop(1, 'rgba(255, 60, 0, 0)');
+        ctx.fillStyle = coronaGrad;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, 240, 0, Math.PI * 2);
+        ctx.fill();
+
+        // B. Rotating Sunbeams (God Rays)
+        ctx.save();
+        ctx.translate(sunX, sunY);
+        const beamRot = (Date.now() * 0.00015) % (Math.PI * 2);
+        ctx.rotate(beamRot);
+        ctx.fillStyle = 'rgba(255, 230, 150, 0.05)';
+        for (let b = 0; b < 12; b++) {
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.arc(0, 0, this.V_HEIGHT * 0.95, -0.075, 0.075);
+          ctx.closePath();
+          ctx.fill();
+          ctx.rotate(Math.PI / 6);
+        }
+        ctx.restore();
+
+        // C. Core Daylight Sun Disk
+        const coreSunGrad = ctx.createRadialGradient(sunX - 6, sunY - 6, 2, sunX, sunY, sunRadius);
+        coreSunGrad.addColorStop(0, '#ffffff');       // Pure solar white core
+        coreSunGrad.addColorStop(0.45, '#fff1a8');    // Brilliant sunlight gold
+        coreSunGrad.addColorStop(0.85, '#ffaa00');    // Radiant amber rim
+        coreSunGrad.addColorStop(1, 'rgba(255, 120, 0, 0.85)');
+        ctx.fillStyle = coreSunGrad;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // D. Luminous Sun Ring
+        ctx.strokeStyle = 'rgba(255, 245, 190, 0.7)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, sunRadius + 4, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // E. Cinematic Lens Flare Orbs (Aligned diagonally towards bottom-left)
+        const flareDist = 90;
+        const flareAngle = Math.PI * 0.75;
+        // Flare 1: Soft Golden Bokeh Orb
+        const f1X = sunX + Math.cos(flareAngle) * flareDist * 1.5;
+        const f1Y = sunY + Math.sin(flareAngle) * flareDist * 1.5;
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.12)';
+        ctx.beginPath();
+        ctx.arc(f1X, f1Y, 18, 0, Math.PI * 2);
+        ctx.fill();
+        // Flare 2: Amber Ring
+        const f2X = sunX + Math.cos(flareAngle) * flareDist * 2.8;
+        const f2Y = sunY + Math.sin(flareAngle) * flareDist * 2.8;
+        ctx.strokeStyle = 'rgba(255, 140, 0, 0.15)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(f2X, f2Y, 28, 0, Math.PI * 2);
+        ctx.stroke();
+        // Flare 3: Soft Daylight Streak
+        const f3X = sunX + Math.cos(flareAngle) * flareDist * 4.0;
+        const f3Y = sunY + Math.sin(flareAngle) * flareDist * 4.0;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.10)';
+        ctx.beginPath();
+        ctx.arc(f3X, f3Y, 12, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3. Distant Kerala Hills Silhouette with Coconut Palms
+        ctx.fillStyle = '#111722';
+        ctx.beginPath();
+        ctx.moveTo(0, this.V_HEIGHT - 120);
+        for (let hill of this.cityHills) {
+          ctx.lineTo(hill.x, this.V_HEIGHT - hill.height);
+          ctx.lineTo(hill.x + hill.width, this.V_HEIGHT - 120);
+        }
+        ctx.lineTo(this.V_WIDTH, this.V_HEIGHT);
+        ctx.lineTo(0, this.V_HEIGHT);
+        ctx.fill();
+
+        // Draw Coconut Palms on selected hill peaks
+        ctx.save();
+        ctx.fillStyle = '#0c111a';
+        ctx.strokeStyle = '#0c111a';
+        for (let hill of this.cityHills) {
+          if (hill.trees) {
+            const px = hill.x + hill.width * 0.5;
+            const py = this.V_HEIGHT - hill.height;
+            this.drawCoconutPalm(ctx, px, py, 26);
+          }
+        }
+        ctx.restore();
+
+        // 4. Animated Clouds with warm daylight rim light
+        for (let c of this.clouds) {
+          c.x -= c.speed;
+          if (c.x < -100) c.x = this.V_WIDTH + 80;
+
+          // Soft daylight cloud body
+          ctx.fillStyle = `rgba(255, 245, 235, ${c.opacity * 0.9})`;
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
+          ctx.arc(c.x + c.radius * 0.7, c.y - c.radius * 0.2, c.radius * 0.8, 0, Math.PI * 2);
+          ctx.arc(c.x + c.radius * 1.3, c.y + c.radius * 0.1, c.radius * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Golden sunlight highlight on top edge of cloud
+          ctx.fillStyle = `rgba(255, 210, 130, ${c.opacity * 0.5})`;
+          ctx.beginPath();
+          ctx.arc(c.x, c.y - 3, c.radius * 0.85, Math.PI * 1.1, Math.PI * 1.9);
+          ctx.fill();
+        }
+
+        // 5. Road Ground with reflective warm daylight dashes
+        ctx.fillStyle = '#181b24';
+        ctx.fillRect(0, this.V_HEIGHT - 70, this.V_WIDTH, 70);
+
+        // Ground top highlight line
+        ctx.strokeStyle = '#ff7700';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(0, this.V_HEIGHT - 70);
+        ctx.lineTo(this.V_WIDTH, this.V_HEIGHT - 70);
+        ctx.stroke();
+
+        // Scrolling Road Dashes
+        const roadOffset = (Date.now() * 0.15) % 40;
+        ctx.strokeStyle = '#ffb300';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([20, 20]);
+        ctx.beginPath();
+        ctx.moveTo(-roadOffset, this.V_HEIGHT - 35);
+        ctx.lineTo(this.V_WIDTH + 40, this.V_HEIGHT - 35);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      drawCoconutPalm(ctx, x, y, height) {
+        ctx.save();
+        ctx.translate(x, y);
+        // Curved trunk
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(6, -height * 0.5, 3, -height);
+        ctx.stroke();
+
+        // Fronds
+        const topY = -height;
+        const frondAngles = [-2.5, -2.0, -1.5, -1.0, -0.6];
+        ctx.lineWidth = 2;
+        for (let angle of frondAngles) {
+          ctx.beginPath();
+          ctx.moveTo(3, topY);
+          const fx = 3 + Math.cos(angle) * 16;
+          const fy = topY + Math.sin(angle) * 14 + 4;
+          ctx.quadraticCurveTo(3 + Math.cos(angle) * 10, topY - 4, fx, fy);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // Draw Obstacle Pairs (PWD Barricades / Military Towers / Posts)
+      drawObstacles() {
+        const ctx = this.ctx;
+
+        for (let obs of this.obstacles) {
+          ctx.save();
+
+          // 1. TOP PIPE
+          this.drawPipeSection(ctx, obs.x, 0, obs.width, obs.gapTop, true, obs.theme);
+
+          // 2. BOTTOM PIPE
+          const bottomHeight = this.V_HEIGHT - obs.gapBottom;
+          this.drawPipeSection(ctx, obs.x, obs.gapBottom, obs.width, bottomHeight, false, obs.theme);
+
+          // 3. Funny Malayalam Troll Signboard (if attached)
+          if (obs.signText) {
+            ctx.save();
+            const signY = obs.gapTop > 140 ? obs.gapTop - 45 : obs.gapBottom + 25;
+            ctx.fillStyle = '#ffd600';
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.roundRect(obs.x - 24, signY, obs.width + 48, 26, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#111';
+            ctx.font = '900 10.5px Manjari, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(obs.signText, obs.x + obs.width / 2, signY + 17);
+            ctx.restore();
+          }
+
+          ctx.restore();
+        }
+      }
+
+      drawPipeSection(ctx, x, y, width, height, isTop, theme) {
+        if (height <= 0) return;
+
+        ctx.save();
+        ctx.translate(x, y);
+
+        // Theme 0: Kerala PWD Barricade with diagonal yellow/black safety stripes
+        if (theme === 0) {
+          ctx.fillStyle = '#ff9800';
+          ctx.fillRect(0, 0, width, height);
+
+          // Danger Diagonal Stripes
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, width, height);
+          ctx.clip();
+          ctx.strokeStyle = '#212121';
+          ctx.lineWidth = 14;
+          for (let s = -width; s < height + width; s += 28) {
+            ctx.beginPath();
+            ctx.moveTo(s, 0);
+            ctx.lineTo(s + 36, height);
+            ctx.stroke();
+          }
+          ctx.restore();
+
+          // End Cap Lip
+          ctx.fillStyle = '#e65100';
+          ctx.strokeStyle = '#212121';
+          ctx.lineWidth = 3;
+          const capY = isTop ? height - 26 : 0;
+          ctx.beginPath();
+          ctx.roundRect(-6, capY, width + 12, 26, 6);
+          ctx.fill();
+          ctx.stroke();
+
+          // Flashing Hazard Red/Amber LED on end
+          ctx.fillStyle = (Date.now() % 600 < 300) ? '#ff1744' : '#ffea00';
+          ctx.beginPath();
+          ctx.arc(width / 2, isTop ? height - 13 : 13, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Theme 1: Military Camouflage Barricade Tower
+        else if (theme === 1) {
+          ctx.fillStyle = '#3e4a36';
+          ctx.fillRect(0, 0, width, height);
+
+          // Camo Patches
+          ctx.fillStyle = '#283222';
+          ctx.beginPath();
+          ctx.ellipse(width * 0.4, height * 0.3, 22, 14, 0.4, 0, Math.PI * 2);
+          ctx.ellipse(width * 0.7, height * 0.7, 26, 18, -0.3, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Metallic Ribs
+          ctx.strokeStyle = '#556649';
+          ctx.lineWidth = 2;
+          for (let ry = 20; ry < height; ry += 35) {
+            ctx.beginPath();
+            ctx.moveTo(0, ry);
+            ctx.lineTo(width, ry);
+            ctx.stroke();
+          }
+
+          // Armored End Cap
+          ctx.fillStyle = '#22291d';
+          ctx.strokeStyle = '#111';
+          ctx.lineWidth = 3;
+          const capY = isTop ? height - 24 : 0;
+          ctx.beginPath();
+          ctx.roundRect(-5, capY, width + 10, 24, 4);
+          ctx.fill();
+          ctx.stroke();
+        }
+        // Theme 2: Electric Concrete Utility Pole
+        else {
+          ctx.fillStyle = '#5c6470';
+          ctx.fillRect(0, 0, width, height);
+
+          // Pole Texture grooves
+          ctx.strokeStyle = '#3e444c';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(width * 0.25, 0); ctx.lineTo(width * 0.25, height);
+          ctx.moveTo(width * 0.75, 0); ctx.lineTo(width * 0.75, height);
+          ctx.stroke();
+
+          // High Voltage Lightning Bolt Icon on cap
+          const capY = isTop ? height - 26 : 0;
+          ctx.fillStyle = '#373c44';
+          ctx.strokeStyle = '#222';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.roundRect(-4, capY, width + 8, 26, 6);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#ffd600';
+          ctx.font = '900 14px Montserrat';
+          ctx.textAlign = 'center';
+          ctx.fillText('⚡ 440V', width / 2, isTop ? height - 8 : 18);
+        }
+
+        ctx.restore();
+      }
+
+      // =========================================================
+      // MAIN GAME RAF LOOP
+      // =========================================================
+      gameLoop(timestamp) {
+        const dt = Math.min((timestamp - this.lastTime) / 1000, 0.1);
+        this.lastTime = timestamp;
+
+        this.ctx.clearRect(0, 0, this.V_WIDTH, this.V_HEIGHT);
+
+        // STATE SPECIFIC LOGIC & RENDERING
+        switch (this.state) {
+          case STATES.GATE:
+            this.drawBackground();
+            break;
+
+          case STATES.INTRO:
+            this.handleIntroLoop(timestamp);
+            break;
+
+          case STATES.HOME:
+            this.drawBackground();
+            // Ambient hero float in center
+            const floatY = this.V_HEIGHT / 2 - 40 + Math.sin(timestamp * 0.003) * 12;
+            this.drawCharacter(this.ctx, this.V_WIDTH / 2 - 27, floatY, Math.sin(timestamp * 0.003) * 0.1, 1.3, timestamp * 0.008);
+            this.drawHeroPreview(timestamp * 0.008);
+            this.updateParticles();
+            this.drawParticles();
+            break;
+
+          case STATES.PLAYING:
+          case STATES.GAME_OVER:
+            this.handleActiveGameLoop(dt, timestamp);
+            break;
+        }
+
+        requestAnimationFrame((t) => this.gameLoop(t));
+      }
+
+      // Cinematic Intro Scene 4 Tanker Crash Execution
+      handleIntroLoop(timestamp) {
+        const ctx = this.ctx;
+        this.drawBackground();
+
+        const intro = this.introTimeline;
+        const now = timestamp;
+
+        // Floating Veeramani in middle of screen looking heroic/confused
+        const heroX = this.V_WIDTH / 2 - 27;
+        const heroY = this.V_HEIGHT / 2 - 20;
+
+        if (intro.currentScene <= 3) {
+          // Scenes 1, 2, 3: Cinematic ambient particles & gentle hero hover
+          this.drawCharacter(ctx, heroX, heroY + Math.sin(now * 0.004) * 8, 0, 1.2, now * 0.006);
+
+          // Ambient orange cinematic sparks
+          if (Math.random() < 0.2) {
+            this.particles.push({
+              x: Math.random() * this.V_WIDTH,
+              y: this.V_HEIGHT,
+              vx: (Math.random() - 0.5) * 1.5,
+              vy: -Math.random() * 3 - 1,
+              size: 3 + Math.random() * 3,
+              color: '#ff8800',
+              alpha: 1,
+              decay: 0.015
+            });
+          }
+          this.updateParticles();
+          this.drawParticles();
+        } else if (intro.currentScene === 4) {
+          // Scene 4: MILITARY TANKER IMPACT!
+          const wheelsRotation = (now * 0.02) % (Math.PI * 2);
+
+          // Tank drives in from left straight into Veeramani!
+          if (!intro.collided) {
+            // Trailing dust puffs behind the caterpillar treads!
+            if (Math.random() < 0.65) {
+              this.particles.push({
+                x: intro.tankX + 25,
+                y: heroY + 45,
+                vx: -Math.random() * 4 - 2,
+                vy: -Math.random() * 2,
+                size: 5 + Math.random() * 8,
+                color: 'rgba(210, 160, 110, 0.65)',
+                alpha: 0.85,
+                decay: 0.04
+              });
+            }
+
+            // Cannon firing smoke ring as it charges
+            if (Math.random() < 0.25) {
+              this.particles.push({
+                x: intro.tankX + 195,
+                y: heroY - 14,
+                vx: Math.random() * 2 + 1,
+                vy: (Math.random() - 0.5) * 1.5,
+                size: 8 + Math.random() * 6,
+                color: 'rgba(255, 255, 255, 0.75)',
+                alpha: 0.9,
+                decay: 0.035
+              });
+            }
+
+            // Check if tank is right at hero
+            if (intro.tankX + 180 >= heroX + 20) {
+              // Comedic Freeze-Frame Gag (Bullet-time)
+              if (!intro.freezeDone) {
+                intro.freezeCount = (intro.freezeCount || 0) + 1;
+                // Draw Tank & Hero frozen in shock
+                this.drawMilitaryTanker(ctx, intro.tankX, heroY - 30, 1.4, false, wheelsRotation);
+                this.drawCharacter(ctx, heroX, heroY, -0.35, 1.25, 0);
+
+                // Comic alert stamp
+                ctx.save();
+                ctx.fillStyle = '#ff1744';
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.roundRect(this.V_WIDTH / 2 - 135, heroY - 82, 270, 44, 12);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '900 15px Manjari, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('⚠️ അണ്ണൻ പെട്ടു!! (HE IS COOKED!)', this.V_WIDTH / 2, heroY - 55);
+                ctx.restore();
+
+                if (intro.freezeCount >= 14) {
+                  intro.freezeDone = true;
+                  intro.collided = true;
+                  intro.flashAlpha = 1;
+                  this.sound.playGameOver();
+                  this.triggerScreenShake();
+                  this.spawnComicExplosion(heroX + 27, heroY + 27);
+
+                  // Flying funny debris: sandals, rupee notes, stars, boom sparks
+                  const debrisItems = ['🩴', '₹', '⭐', '💥'];
+                  for (let d = 0; d < 14; d++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const spd = 4 + Math.random() * 7;
+                    this.particles.push({
+                      x: heroX + 27,
+                      y: heroY + 27,
+                      vx: Math.cos(angle) * spd,
+                      vy: Math.sin(angle) * spd - 3,
+                      size: 20,
+                      text: debrisItems[Math.floor(Math.random() * debrisItems.length)],
+                      color: '#ffd700',
+                      alpha: 1,
+                      decay: 0.02
+                    });
+                  }
+                }
+                this.updateParticles();
+                this.drawParticles();
+                return;
+              }
+            } else {
+              intro.tankX += intro.tankSpeed;
+              intro.tankSpeed += 0.22; // accelerates
+              this.drawMilitaryTanker(ctx, intro.tankX, heroY - 30, 1.4, false, wheelsRotation);
+              this.drawCharacter(ctx, heroX, heroY, -0.2, 1.2, 0);
+            }
+          } else {
+            // Post Collision Explosion & Fade to Home
+            intro.tankX += 3;
+            this.drawMilitaryTanker(ctx, intro.tankX, heroY - 30, 1.4, false, wheelsRotation);
+
+            // Blinding comic flash
+            if (intro.flashAlpha > 0) {
+              ctx.fillStyle = `rgba(255, 255, 255, ${intro.flashAlpha})`;
+              ctx.fillRect(0, 0, this.V_WIDTH, this.V_HEIGHT);
+              intro.flashAlpha -= 0.04;
+            }
+
+            // Big Comic "BOOM!!" & Malayalam "അയ്യോ!!"
+            ctx.fillStyle = '#ff1744';
+            ctx.font = '900 48px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('BOOM!!', this.V_WIDTH / 2, heroY - 40);
+
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '900 32px Manjari, sans-serif';
+            ctx.fillText('അയ്യോ ടാങ്കർ!! 😂', this.V_WIDTH / 2, heroY + 50);
+
+            // Transition to Home Screen after impact
+            if (!intro.explosionDone) {
+              intro.explosionDone = true;
+              setTimeout(() => {
+                this.finishIntroAndGoHome();
+              }, 1800);
+            }
+          }
+
+          this.updateParticles();
+          this.drawParticles();
+        }
+      }
+
+      // Active Gameplay Physics & Render Engine
+      handleActiveGameLoop(dt, timestamp) {
+        const ctx = this.ctx;
+
+        // 1. World Scenery
+        this.drawBackground();
+
+        // 2. Obstacles
+        if (this.state === STATES.PLAYING) {
+          this.updateObstacles();
+        }
+        this.drawObstacles();
+
+        // 3. Random Delivery Events (Delivery Boy & Tanker Delivery)
+        if (this.state === STATES.PLAYING) {
+          this.updateRandomEvents();
+        }
+
+        // Draw Active Event Entities
+        if (this.eventManager.currentEvent === 'NORMAL_DELIVERY') {
+          const data = this.eventManager.data;
+          this.drawDeliveryBoy(ctx, data.scooterX, this.player.y + 10);
+        } else if (this.eventManager.currentEvent === 'TANKER_DELIVERY') {
+          const data = this.eventManager.data;
+          const wheelsRot = (timestamp * 0.015) % (Math.PI * 2);
+          this.drawMilitaryTanker(ctx, data.tankerX, this.V_HEIGHT - 170, 1.6, true, wheelsRot);
+
+          // Render Massive 70 Crore Money Counter HUD
+          if (data.moneyCounter > 0) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.strokeStyle = '#ffca28';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.roundRect(this.V_WIDTH / 2 - 130, 80, 260, 48, 14);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '900 20px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            const formattedMoney = '₹' + Math.floor(data.moneyCounter).toLocaleString('en-IN');
+            ctx.fillText(formattedMoney, this.V_WIDTH / 2, 112);
+            ctx.restore();
+          }
+        }
+
+        // 4. Player Physics & Movement
+        if (this.state === STATES.PLAYING) {
+          this.player.vy += CONFIG.PHYSICS.GRAVITY;
+          if (this.player.vy > CONFIG.PHYSICS.TERMINAL_VELOCITY) {
+            this.player.vy = CONFIG.PHYSICS.TERMINAL_VELOCITY;
+          }
+          this.player.y += this.player.vy;
+
+          // Rotation interpolation based on vertical velocity
+          this.player.rotation = Math.min(Math.PI / 2.2, Math.max(-0.45, this.player.vy * 0.08));
+          this.player.wingAngle += 0.25;
+
+          // Floor and Ceiling Collision Check
+          const floorY = this.V_HEIGHT - 70;
+          if (this.player.y + this.player.height >= floorY) {
+            this.player.y = floorY - this.player.height;
+            this.triggerGameOver();
+          }
+          if (this.player.y <= 0) {
+            this.player.y = 0;
+            this.player.vy = 0;
+          }
+        } else if (this.state === STATES.GAME_OVER) {
+          // Fall to ground after death
+          if (this.player.y + this.player.height < this.V_HEIGHT - 70) {
+            this.player.vy += CONFIG.PHYSICS.GRAVITY * 1.5;
+            this.player.y += this.player.vy;
+            this.player.rotation += 0.15;
+          }
+        }
+
+        // 5. Draw Player Character
+        this.drawCharacter(ctx, this.player.x, this.player.y, this.player.rotation, 1, this.player.wingAngle);
+
+        // 6. Particles
+        this.updateParticles();
+        this.drawParticles();
+      }
+    }
+
+    // Initialize Game on Window Load
+    window.addEventListener('DOMContentLoaded', () => {
+      window.game = new ParakkadaVeeramaniGame();
+      window.triggerTanker = () => window.game.triggerRandomEvent(true);
+      window.triggerDelivery = () => window.game.triggerRandomEvent(false);
+    });
+  </script>
+</body>
+</html>
